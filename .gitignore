@@ -3,7 +3,7 @@
 !requirements.txt
 scripts/
 data/
-!demo_site/data/
+!fronthand/data/
 # run outputs quote the scripts; share via a restricted link instead
 out/
 .llm_cache/

@@ -267,7 +267,7 @@ class H(BaseHTTPRequestHandler):
         u = urllib.parse.urlparse(self.path)
         q = urllib.parse.parse_qs(u.query)
         if u.path in ("/", "/index.html"):
-            with open(os.path.join(ROOT, "ui", "app.html"), "rb") as f:
+            with open(os.path.join(ROOT, "fronthand", "app.html"), "rb") as f:
                 return self._send(200, f.read(), "text/html")
         if u.path == "/api/runs":
             return self._send(200, sorted(run_dirs()))

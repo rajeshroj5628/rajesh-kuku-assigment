@@ -1,4 +1,4 @@
-﻿"""Builds demo_site/: a read-only, static copy of the dashboard for Vercel, from a completed run served by the local app.
+﻿"""Builds fronthand/index.html and fronthand/data/: a read-only, static copy of the dashboard for Vercel, from a completed run served by the local app.
 The screenplay's own wording is withheld: every quoted line, plot summary and model explanation is replaced by blocks of the same length,
 so the site shows the structure (episodes, times, scores, ranks, validation, evaluation) but not the script.
 
@@ -8,8 +8,8 @@ so the site shows the structure (episodes, times, scores, ranks, validation, eva
 import argparse, json, os, re, shutil, urllib.parse, urllib.request
 
 ap = argparse.ArgumentParser(); ap.add_argument("--run", default="out"); ap.add_argument("--base", default="http://127.0.0.1:8000"); a = ap.parse_args()
-ROOT = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(ROOT, "demo_site"); DATA = os.path.join(OUT, "data")
-shutil.rmtree(OUT, ignore_errors=True); os.makedirs(DATA)
+ROOT = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(ROOT, "fronthand"); DATA = os.path.join(OUT, "data")
+shutil.rmtree(DATA, ignore_errors=True); os.makedirs(DATA)
 get = lambda p: urllib.request.urlopen(a.base + p).read()
 Q = "?run=" + urllib.parse.quote(a.run)
 
@@ -64,10 +64,10 @@ SHIM = r"""<script>
     b.querySelector('a').style.cssText='color:#fff;text-decoration:underline'; document.body.appendChild(b); document.body.style.paddingBottom='34px'; });
 })();
 </script>"""
-html = open(os.path.join(ROOT, "ui", "app.html"), encoding="utf-8").read()
+html = open(os.path.join(OUT, "app.html"), encoding="utf-8").read()
 assert html.count("<script>") >= 1
 html = html.replace("<script>", SHIM + "\n<script>", 1)
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8", newline="\n").write(html)
 json.dump({"cleanUrls": True, "headers": [{"source": "/data/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=300"}]}]}, open(os.path.join(OUT, "vercel.json"), "w"), indent=1)
-open(os.path.join(OUT, "README.md"), "w", encoding="utf-8").write("# PromoFinder - read-only demo\n\nStatic copy of the dashboard for a completed run. Deploy with Vercel: framework preset **Other**, root directory `demo_site`, no build command.\nThe screenplay text is replaced by blocks (see `make_demo_site.py`). Uploading and running need the real app: `python app.py`.\n")
-print("demo_site built:", sum(len(f) for _, _, f in os.walk(OUT)), "files")
+open(os.path.join(OUT, "README.md"), "w", encoding="utf-8").write("# PromoFinder - read-only demo\n\nStatic copy of the dashboard for a completed run. Deploy with Vercel: framework preset **Other**, root directory `fronthand`, no build command.\nThe screenplay text is replaced by blocks (see `make_demo_site.py`). Uploading and running need the real app: `python app.py`.\n")
+print("fronthand built:", sum(len(f) for _, _, f in os.walk(OUT)), "files")

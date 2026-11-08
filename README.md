@@ -105,10 +105,10 @@ Evaluation is on development sets only. The free tier allows about one call ever
 
 ## 8. Layout
 
-`promofinder/` the pipeline (parse, candidates, judge, strict, stranger, rank, tournament, slate, quality, scoring, llm) | `run_pipeline.py`, `run_funnel.py` | `app.py` + `ui/`
+`promofinder/` the pipeline (parse, candidates, judge, strict, stranger, rank, tournament, slate, quality, scoring, llm) | `run_pipeline.py`, `run_funnel.py` | `app.py` + `fronthand/` (the whole front end)
 the dashboard | `eval/` metrics, tests and experiments | `config.yaml` | `examples/` calibration clips used only in an experiment.
 
 
 ## Live demo (read-only)
 
-`demo_site/` is a static copy of the dashboard for a completed 50-episode run, ready for Vercel (framework preset **Other**, root directory `demo_site`, no build command). The screenplay's own wording is replaced by blocks. Uploading and running need the real app (`python app.py`). Rebuild it with `python make_demo_site.py --run out` while the app is running.
+`fronthand/` holds the whole front end: `app.html` (the dashboard the local app serves), `viewer.html`, and `index.html` + `data/` (a static, read-only copy for a completed 50-episode run, ready for Vercel: framework preset **Other**, root directory `fronthand`, no build command). The screenplay's own wording is replaced by blocks. Uploading and running need the real app (`python app.py`). Rebuild it with `python make_demo_site.py --run out` while the app is running.
