@@ -14,7 +14,7 @@ import sys
 
 KEEP = ["promofinder/*.py", "run_pipeline.py", "run_funnel.py", "make_submission.py",
         "config.yaml", "requirements.txt", "README.md", ".env.example", ".gitignore",
-        "eval/*.py", "eval/gold_*.json", "ui/viewer.html", "ui/app.html", "app.py", "examples/editor_picks.json", "eval/GOLD_FREEZE.json", "make_demo_site.py", "demo_site/*", "demo_site/data/*"]
+        "eval/*.py", "eval/gold_*.json", "ui/viewer.html", "ui/app.html", "app.py", "examples/editor_picks.json", "eval/GOLD_FREEZE.json", "make_demo_site.py", "vercel.json", "demo_site/*", "demo_site/data/*"]
 OUT = "submission_repo"
 
 
@@ -75,4 +75,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
