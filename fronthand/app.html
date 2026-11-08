@@ -337,6 +337,8 @@ html,body{max-width:100%;overflow-x:hidden}
 
 /* ---- first screen is only Upload & Run; the result tabs appear once a run has finished ---- */
 html.locked #nav button:not([data-t=run]), html.locked #run-sel{display:none}
+html.locked #stat, html.locked .steps, html.locked #openold, html.locked #theme{display:none!important}
+html.locked #v-run .panel{max-width:760px;margin:40px auto}
 #openold-a{color:var(--acc);font-weight:700;text-decoration:none;border-bottom:1px solid currentColor}
 </style>
 </head>
@@ -968,7 +970,7 @@ async function pollStatus(){
 $('#stat').onclick=()=>tab('run'); pollStatus(); setInterval(pollStatus,4000);
 
 /* ---------- start ---------- */
-loadRuns(new URLSearchParams(location.search).get('run')||undefined).then(()=>{ const oa=$('#openold-a'); if(DATA.length&&document.documentElement.classList.contains('locked')){ $('#openold').hidden=false; oa.onclick=e=>{e.preventDefault(); unlock(); tab('dash');}; } const h=location.hash.slice(1); tab(['dash','promos','short','run'].includes(h)?h:(h==='preview'?'promos':'dash'));
+loadRuns(new URLSearchParams(location.search).get('run')||undefined).then(()=>{ const h=location.hash.slice(1); tab(['dash','promos','short','run'].includes(h)?h:(h==='preview'?'promos':'dash'));
   if(h==='preview'&&VIEW.length) openPreview(VIEW[0]).then(()=>{ const tt=new URLSearchParams(location.search).get('t'); if(tt&&CUR){ T=Math.min(TOTAL,+tt); tick(0,true); } }); });
 </script>
 </body>
