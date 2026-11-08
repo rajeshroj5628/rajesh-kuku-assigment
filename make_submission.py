@@ -1,4 +1,4 @@
-"""Build submission_repo/ - the ONLY folder to upload to GitHub.
+﻿"""Build submission_repo/ - the ONLY folder to upload to GitHub.
 
 Copies source, config, README and eval code; never copies .env, .llm_cache, out*, or any episode text.
 Then scans the result for (a) your API key and (b) lines from the confidential scripts.
@@ -51,7 +51,7 @@ def main():
                 path = os.path.join(OUT, name)
                 shutil.rmtree(path, ignore_errors=True) if os.path.isdir(path) else os.remove(path)
     for pat in KEEP:
-        for f in glob.glob(pat):
+        for f in (x for x in glob.glob(pat) if os.path.isfile(x)):
             dst = os.path.join(OUT, f)
             os.makedirs(os.path.dirname(dst) or OUT, exist_ok=True)
             shutil.copy2(f, dst)
@@ -75,3 +75,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
