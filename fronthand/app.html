@@ -433,13 +433,11 @@ html.locked #v-run .panel{max-width:760px;margin:40px auto}
     <h2>Run it on a new show</h2>
     <div class="sub">The same pipeline as the command line. Your files stay on this computer; only the model calls leave it.</div>
     <div class="sub" id="openold" hidden style="margin:-4px 0 12px">Already have a finished run? <a href="#" id="openold-a">Open its results</a></div>
-    <div class="dz" id="dz"><div class="dzi">⬆</div><div><b>Drag and drop the episode files here (.txt, .md, .srt, or one .zip)</b><div class="sub">or <button id="pick">choose files…</button> <button id="pickdir">choose a whole folder…</button></div><div class="sub">Any number of episodes: select many files at once (Ctrl+A in the file window), drop a folder, or add more later — they are all kept together.</div></div></div>
+    <div class="dz" id="dz"><div class="dzi">⬆</div><div><b>Drag and drop the episode files here (.txt, .md, .srt, or one .zip)</b><div class="sub">or <button id="pick">choose files…</button></div><div class="sub">Add as many episode files as you like: select many at once (Ctrl+A in the file window) or add more later — they are all kept together.</div></div></div>
     <input type="file" id="files" accept=".txt,.md,.srt,.zip" multiple hidden>
-    <input type="file" id="folder" webkitdirectory directory multiple hidden>
     <div class="fl" id="flist"><span class="sub">No files chosen.</span></div>
     <div class="insp" id="inspect" hidden></div>
     <div class="grid">
-      <label class="f">…or a folder path on this computer<input type="text" id="dir" placeholder="C:\path\to\scripts"></label>
       <label class="f">Run name (optional)<input type="text" id="name" placeholder="e.g. my_show"></label>
     </div>
     <label class="f" style="margin-top:10px">Only these episodes (optional)<input type="text" id="eps" placeholder="e.g. 1 3 18 — blank means all"></label>
@@ -831,8 +829,6 @@ document.addEventListener('keydown',e=>{
 /* ---------- run tab ---------- */
 const rid=()=>Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b=>(b%36).toString(36)).join('');
 $('#pick').onclick=e=>{ e.stopPropagation(); $('#files').click(); };
-$('#pickdir').onclick=e=>{ e.stopPropagation(); $('#folder').click(); };
-$('#folder').onchange=()=>{ addFiles($('#folder').files); $('#folder').value=''; };
 let FILES=[], UPLOADED=null;
 const sigOf=()=>FILES.map(f=>f.name+':'+f.size).join('|');
 async function ensureUploaded(){                 // one upload serves both "Check files" and "Run"
@@ -877,23 +873,19 @@ function updateEst(){
 $('#files').onchange=()=>{ addFiles($('#files').files); $('#files').value=''; };
 const dz=$('#dz'); ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.add('over'); }));
 ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.remove('over'); }));
-async function walk(entry,out){ if(entry.isFile){ await new Promise(r=>entry.file(f=>{out.push(f); r();},r)); }
-  else if(entry.isDirectory){ const rd=entry.createReader(); for(;;){ const batch=await new Promise(r=>rd.readEntries(r,()=>r([]))); if(!batch.length) break; for(const c of batch) await walk(c,out); } } }
-dz.addEventListener('drop',async e=>{ const items=[...(e.dataTransfer.items||[])].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
-  if(items.length){ const out=[]; for(const it of items) await walk(it,out); addFiles(out); } else addFiles(e.dataTransfer.files); });
+dz.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
 dz.onclick=e=>{ if(!e.target.closest('button')) $('#files').click(); };
 $('#eps').addEventListener('input',updateEst);
 $$('.presets button').forEach(b=>b.onclick=()=>{ $('#eps').value=b.dataset.p; updateEst(); });
 function say(t,c=''){ const m=$('#msg'); m.textContent=t; m.className='msg '+c; }
 $('#run').onclick=async()=>{
-  const files=FILES, dir=$('#dir').value.trim();
-  if(!files.length&&!dir) return say('Choose episode files (or a .zip) or enter a folder path first.','err');
+  const files=FILES;
+  if(!files.length) return say('Choose the episode files (or one .zip) first.','err');
   $('#run').disabled=true; say('Starting…');
   const body={run_name:$('#name').value,episodes:$('#eps').value,stranger:$('#stranger').checked,mock:$('#mock').checked};
   try{
-    if(files.length){ JOB=await ensureUploaded(); body.job=JOB;
-      const info=await inspectJob(JOB); if(!info.ok) throw new Error(info.error||'the files could not be read');
-    } else body.input_dir=dir;
+    JOB=await ensureUploaded(); body.job=JOB;
+    const info=await inspectJob(JOB); if(!info.ok) throw new Error(info.error||'the files could not be read');
     const r=await (await fetch('/api/run',{method:'POST',body:JSON.stringify(body)})).json();
     if(r.error) throw new Error(r.error);
     say('Running…'); $('#stop').hidden=false; $('#log').hidden=false; $('#barwrap').hidden=false; poll=setInterval(status,1500); status();
