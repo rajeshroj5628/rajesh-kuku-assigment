@@ -1,0 +1,12 @@
+{
+  "_note": "Hand-picked by the builder after reading all 50 scripts. Small and subjective - add your own picks. Times are mm:ss within the episode.",
+  "promos": [
+    {"episode": 3,  "start": "01:24", "end": "02:20", "note": "stranger punches guard -> 'accept my hand'"},
+    {"episode": 12, "start": "00:26", "end": "01:24", "note": "'You planted it!' -> 'Tell me where the garden is'"},
+    {"episode": 15, "start": "00:44", "end": "01:24", "note": "thug shoves Juliana -> Alexander arrives"},
+    {"episode": 23, "start": "01:10", "end": "02:09", "note": "'Someone is poisoning her' -> door latch"},
+    {"episode": 32, "start": "00:18", "end": "00:50", "note": "'Burn it.' (first segment)"},
+    {"episode": 41, "start": "00:41", "end": "01:29", "note": "chained in cathedral -> explosion"},
+    {"episode": 45, "start": "01:11", "end": "01:58", "note": "'my lawful wife' -> priest invalidates marriage"}
+  ]
+}

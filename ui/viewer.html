@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promo Finder</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1b;--mute:#6b6a65;--line:#e3e1db;--acc:#b3261e;--ok:#1b7f4b;--warn:#a15c00;--chip:#efede7}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--card:#1f1f1d;--ink:#f1efe9;--mute:#9c9a92;--line:#33322f;--acc:#ff8a80;--ok:#6fd49b;--warn:#f0b35a;--chip:#2a2927}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,Segoe UI,sans-serif}
+header{padding:20px 16px 8px;max-width:980px;margin:0 auto}
+h1{margin:0;font-size:22px}
+.sub{color:var(--mute);font-size:13px}
+main{max-width:980px;margin:0 auto;padding:0 16px 48px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:28px;text-align:center;margin:12px 0;background:var(--card)}
+.drop.over{border-color:var(--acc)}
+button,select,input[type=search]{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 11px}
+button{cursor:pointer}
+button:hover{border-color:var(--acc)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.bar label{font-size:13px;color:var(--mute);display:flex;align-items:center;gap:5px}
+.stats{color:var(--mute);font-size:13px;margin:4px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0}
+.top{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.rank{font-size:22px;font-weight:700;color:var(--acc);min-width:44px}
+.ep{font-weight:600}
+.time{font-variant-numeric:tabular-nums;color:var(--mute)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.chip{background:var(--chip);border-radius:999px;padding:1px 9px;font-size:12px;color:var(--mute)}
+.chip.bad{color:var(--warn)}.chip.good{color:var(--ok)}
+.row{margin:8px 0 0}
+.k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.q{border-left:3px solid var(--line);padding-left:10px;margin-top:2px}
+.why{margin-top:8px}
+details{margin-top:8px;color:var(--mute);font-size:13px}
+.empty{color:var(--mute);text-align:center;padding:40px}
+@media (max-width:560px){.chips{margin-left:0}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Promo Finder</h1>
+  <div class="sub">Ranked promo clips from a full show run. Everything stays in your browser; nothing is uploaded.</div>
+</header>
+<main>
+  <div class="drop" id="drop">
+    <div>Drop <b>promos.json</b> here (from the run's output folder)</div>
+    <div style="margin-top:10px"><button id="pick">Choose file…</button>
+    <input type="file" id="file" accept=".json" hidden></div>
+  </div>
+  <div id="app" hidden>
+    <div class="bar">
+      <input type="search" id="q" placeholder="Search hook, cliffhanger, why…">
+      <label>Episode <select id="ep"><option value="">All</option></select></label>
+      <label>Sort <select id="sort">
+        <option value="rank">Final rank</option>
+        <option value="composite">Judge score</option>
+        <option value="stranger">Stranger test</option>
+        <option value="episode">Episode</option></select></label>
+      <label><input type="checkbox" id="safe"> Hide flagged</label>
+      <label><input type="checkbox" id="grounded"> Quotes verified only</label>
+      <button id="csv">Export CSV</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div id="list"></div>
+  </div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+let DATA = [];
+const fmt = t => { const m = Math.floor(t/60), s = t - m*60; return String(m).padStart(2,'0')+':'+s.toFixed(1).padStart(4,'0'); };
+const segText = p => p.segments.map(s => `Ep${s.episode} ${fmt(s.start)}–${fmt(s.end)}`).join('  +  ');
+const dur = p => p.segments.reduce((a,s)=>a+(s.end-s.start),0);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function load(text){
+  try { DATA = JSON.parse(text); } catch(e){ alert('Not valid JSON'); return; }
+  if(!Array.isArray(DATA) || !DATA.length || !DATA[0].segments){ alert('This does not look like promos.json'); DATA=[]; return; }
+  const eps = [...new Set(DATA.map(p=>p.episode))].sort((a,b)=>a-b);
+  $('#ep').innerHTML = '<option value="">All</option>' + eps.map(e=>`<option>${e}</option>`).join('');
+  $('#app').hidden = false; $('#drop').hidden = true;
+  render();
+}
+function view(){
+  const q = $('#q').value.toLowerCase(), ep = $('#ep').value;
+  let r = DATA.filter(p =>
+    (!ep || String(p.episode)===ep) &&
+    (!$('#safe').checked || !(p.flags||[]).length) &&
+    (!$('#grounded').checked || (p.grounded_hook && p.grounded_cliff)) &&
+    (!q || (p.hook_line+' '+p.cliffhanger_line+' '+p.why).toLowerCase().includes(q)));
+  const k = $('#sort').value;
+  const key = {rank:p=>p.rank, composite:p=>-p.composite, stranger:p=>-(p.stranger_after ?? -1), episode:p=>p.episode*1000+p.rank}[k];
+  return r.sort((a,b)=>key(a)-key(b));
+}
+function render(){
+  const r = view();
+  $('#stats').textContent = `${r.length} of ${DATA.length} promos · ${new Set(DATA.map(p=>p.episode)).size} episodes`;
+  $('#list').innerHTML = r.length ? r.slice(0,200).map(card).join('') : '<div class="empty">No promos match.</div>';
+}
+function card(p){
+  const chips = [
+    `${dur(p).toFixed(0)}s`,
+    `hook ${p.scores.hook}/5`, `cliff ${p.scores.cliff}/5`,
+    p.stranger_after!=null ? `stranger ${p.stranger_after}/5` : null,
+    (p.flags||[]).map(f=>`<span class="chip bad">${esc(f)}</span>`).join(''),
+    (p.grounded_hook&&p.grounded_cliff) ? '<span class="chip good">quotes verified</span>' : '<span class="chip bad">quote unverified</span>'
+  ].filter(Boolean).map(c => c.startsWith('<') ? c : `<span class="chip">${esc(c)}</span>`).join('');
+  return `<div class="card">
+    <div class="top"><span class="rank">#${p.rank}</span><span class="ep">Episode ${p.episode}</span>
+      <span class="time">${segText(p)}</span><span class="chips">${chips}</span></div>
+    <div class="row"><div class="k">Hook · ${esc(p.hook_type)}</div><div class="q">${esc(p.hook_line)}</div></div>
+    <div class="row"><div class="k">Cliffhanger · ${esc(p.cliffhanger_type)}</div><div class="q">${esc(p.cliffhanger_line)}</div></div>
+    <div class="why"><b>Why it works:</b> ${esc(p.why)}</div>
+    <details><summary>Stranger test &amp; notes</summary>
+      <div>Who: ${esc(p.stranger_who||'–')}</div><div>Conflict: ${esc(p.stranger_conflict||'–')}</div>
+      <div>Still unclear: ${esc(p.stranger_missing||'–')}</div>
+      <div>Ranking basis: ${esc(p.rank_basis)} · final score ${p.final_score}</div>
+      ${(p.notes||[]).map(n=>`<div>Note: ${esc(n)}</div>`).join('')}</details></div>`;
+}
+function csv(){
+  const h = ['rank','episode','segments','duration_s','hook_line','cliffhanger_line','why','final_score'];
+  const q = v => '"'+String(v??'').replace(/"/g,'""')+'"';
+  const rows = view().map(p=>[p.rank,p.episode,segText(p),dur(p).toFixed(1),p.hook_line,p.cliffhanger_line,p.why,p.final_score].map(q).join(','));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([[h.join(','),...rows].join('\n')],{type:'text/csv'}));
+  a.download = 'promos_view.csv'; a.click();
+}
+$('#pick').onclick = () => $('#file').click();
+$('#file').onchange = e => e.target.files[0] && e.target.files[0].text().then(load);
+const d = $('#drop');
+d.ondragover = e => { e.preventDefault(); d.classList.add('over'); };
+d.ondragleave = () => d.classList.remove('over');
+d.ondrop = e => { e.preventDefault(); d.classList.remove('over'); e.dataTransfer.files[0] && e.dataTransfer.files[0].text().then(load); };
+['q','ep','sort','safe','grounded'].forEach(id => $('#'+id).addEventListener('input', render));
+$('#csv').onclick = csv;
+</script>
+</body>
+</html>

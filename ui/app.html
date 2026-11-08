@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promo Finder</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c0392b'/%3E%3Cpath d='M24 18l22 14-22 14z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#f4f2ee;--card:#fff;--ink:#1c1b19;--mute:#6a6861;--line:#e2dfd8;--acc:#c0392b;--acc2:#e8a33d;--ok:#1b7f4b;--warn:#a15c00;--chip:#efece6;--log:#14110f;--logink:#d8d4cb;--sel:#fff3ef;--shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root[data-theme=auto]{--bg:#141413;--card:#1e1d1b;--ink:#f1efe9;--mute:#a09d94;--line:#34322e;--acc:#ff7a6b;--acc2:#f0b35a;--ok:#6fd49b;--warn:#f0b35a;--chip:#2a2926;--sel:#2a1f1d;--shadow:0 8px 24px rgba(0,0,0,.4)}}
+:root[data-theme=dark]{--bg:#141413;--card:#1e1d1b;--ink:#f1efe9;--mute:#a09d94;--line:#34322e;--acc:#ff7a6b;--acc2:#f0b35a;--ok:#6fd49b;--warn:#f0b35a;--chip:#2a2926;--sel:#2a1f1d;--shadow:0 8px 24px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+button,select,input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 11px}
+button{cursor:pointer}button:hover{border-color:var(--acc)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:8px;padding-bottom:0}
+.brand{font-weight:800;font-size:18px;letter-spacing:-.02em;padding-bottom:8px}
+.brand b{color:var(--acc)}
+nav{display:flex;gap:2px}
+nav button{border:0;border-radius:0;background:none;padding:10px 13px;border-bottom:3px solid transparent;color:var(--mute);cursor:pointer}
+nav button.on{color:var(--ink);font-weight:650;border-color:var(--acc)}
+nav .badge{background:var(--acc);color:#fff;border-radius:999px;font-size:11px;padding:0 6px;margin-left:5px}
+.right{margin-left:auto;display:flex;gap:8px;align-items:center;padding-bottom:8px}
+main{padding:18px 0 60px}
+h2{font-size:17px;margin:0 0 4px}
+.sub{color:var(--mute);font-size:13px;margin-bottom:10px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;box-shadow:var(--shadow)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.tile .n{font-size:28px;font-weight:750;letter-spacing:-.02em;line-height:1.1}
+.tile .l{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.tile .d{color:var(--mute);font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+.strip{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+@media (max-width:560px){.strip{grid-template-columns:repeat(5,1fr)}}
+.cell{border:1px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center;font-size:12px;cursor:pointer;background:var(--chip);position:relative}
+.cell b{display:block;font-size:14px}.cell span{color:var(--mute);font-size:11px}
+.cell:hover{outline:2px solid var(--acc)}
+.hist{display:flex;align-items:flex-end;gap:4px;height:120px;margin-top:6px}
+.hist div{flex:1;background:var(--acc);border-radius:4px 4px 0 0;min-height:2px;position:relative;opacity:.85}
+.hist div:hover{opacity:1}
+.hl{display:flex;gap:4px;font-size:11px;color:var(--mute)}.hl span{flex:1;text-align:center}
+.hbar{display:grid;grid-template-columns:110px 1fr 34px;gap:8px;align-items:center;font-size:13px;margin:4px 0}
+.hbar i{display:block;height:10px;border-radius:5px;background:var(--acc2)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.pill{border-radius:999px;padding:1px 9px;font-size:12px;background:var(--chip)}
+.pill.ok{color:var(--ok)}.pill.no{color:var(--acc)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.tools label{font-size:13px;color:var(--mute);display:flex;align-items:center;gap:5px}
+.tools input[type=search]{min-width:220px;flex:1}
+.stats{color:var(--mute);font-size:13px;margin:2px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0;box-shadow:var(--shadow);position:relative}
+.card.sel{outline:2px solid var(--acc);background:var(--sel)}
+.top{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.rank{font-size:24px;font-weight:800;color:var(--acc);min-width:48px;letter-spacing:-.02em}
+.ep{font-weight:650}.time{font-variant-numeric:tabular-nums;color:var(--mute)}
+.acts{margin-left:auto;display:flex;gap:6px}
+.acts button{padding:5px 11px;font-size:13px}
+.star.on{color:var(--acc2);border-color:var(--acc2)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{background:var(--chip);border-radius:999px;padding:1px 9px;font-size:12px;color:var(--mute)}
+.chip.bad{color:var(--warn)}.chip.good{color:var(--ok)}
+.meter{display:inline-flex;gap:2px;vertical-align:middle;margin-left:4px}
+.meter i{width:9px;height:9px;border-radius:2px;background:var(--line)}.meter i.f{background:var(--acc)}
+.row{margin-top:9px}.k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.q{border-left:3px solid var(--acc2);padding-left:10px;margin-top:2px}
+.why{margin-top:9px}
+.empty{color:var(--mute);text-align:center;padding:36px}
+.kbd{font-size:11px;border:1px solid var(--line);border-radius:5px;padding:0 5px;color:var(--mute)}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px}
+.ov.on{display:flex}
+.modal{background:var(--card);border-radius:16px;max-width:980px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden}
+.mh{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mh .t{font-weight:700;font-size:16px}
+.mb{display:grid;grid-template-columns:1.35fr 1fr;gap:0}
+@media (max-width:820px){.mb{grid-template-columns:1fr}}
+.mb>div{padding:16px 18px}
+.mb>div+div{border-left:1px solid var(--line)}
+@media (max-width:820px){.mb>div+div{border-left:0;border-top:1px solid var(--line)}}
+.tl{position:relative;height:30px;border-radius:7px;overflow:hidden;display:flex;background:var(--chip);margin:6px 0 4px}
+.tl .sc{height:100%;border-right:1px solid var(--bg);opacity:.9}
+.tl .sc:nth-child(odd){background:color-mix(in srgb,var(--mute) 22%,var(--chip))}
+.tl .sc:nth-child(even){background:color-mix(in srgb,var(--mute) 12%,var(--chip))}
+.tl .seg{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--acc) 70%,transparent);border:2px solid var(--acc);border-radius:5px}
+.tl .ph{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+.tlab{display:flex;justify-content:space-between;font-size:11px;color:var(--mute)}
+.play{display:flex;gap:8px;align-items:center;margin:12px 0 8px}
+.pbar{flex:1;height:7px;background:var(--chip);border-radius:4px;overflow:hidden;cursor:pointer}
+.pbar i{display:block;height:100%;width:0;background:var(--acc)}
+.script{max-height:360px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--bg)}
+.ln{padding:5px 8px;border-radius:7px;margin:3px 0;opacity:.35;transition:opacity .25s,background .25s}
+.ln.on{opacity:1}.ln.now{background:color-mix(in srgb,var(--acc2) 22%,transparent)}
+.ln .ts{color:var(--mute);font-size:11px;font-variant-numeric:tabular-nums;margin-right:6px}
+.ln .who{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.ln .tone{color:var(--mute);font-size:12px}
+.ln.action,.ln.sound{font-style:italic;color:var(--mute)}
+.ln .tag{font-size:10px;font-weight:700;border-radius:4px;padding:0 5px;margin-left:6px;color:#fff;background:var(--acc)}
+.ln .tag.c{background:var(--acc2);color:#1c1b19}
+.cut{text-align:center;color:var(--mute);font-size:11px;letter-spacing:.1em;margin:6px 0}
+.note{width:100%;margin-top:6px;min-height:52px;resize:vertical}
+/* run */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.grid{grid-template-columns:1fr}}
+label.f{display:block;font-size:13px;color:var(--mute)}label.f input[type=text]{width:100%;margin-top:3px}
+.opts{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;font-size:14px}.opts label{display:flex;gap:6px;align-items:center}
+button.go{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:650;padding:9px 22px}
+button.go:disabled{opacity:.5;cursor:default}
+pre{background:var(--log);color:var(--logink);border-radius:8px;padding:12px;margin:10px 0 0;max-height:300px;overflow:auto;font:12px/1.5 Consolas,monospace;white-space:pre-wrap}
+.bar{height:7px;background:var(--chip);border-radius:4px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .4s}
+.msg{margin-top:8px;font-size:14px}.msg.err{color:var(--acc)}.msg.ok{color:var(--ok)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:80}
+.toast.on{opacity:1}
+/* ===== redesigned dashboard ===== */
+body{background:radial-gradient(900px 420px at 12% -8%,color-mix(in srgb,var(--acc) 16%,transparent),transparent),radial-gradient(800px 380px at 100% 0%,color-mix(in srgb,var(--acc2) 12%,transparent),transparent),var(--bg);background-attachment:fixed}
+.hero{margin:6px 0 26px}
+.hero-in{display:grid;grid-template-columns:1.35fr 1fr;gap:28px;align-items:center;padding:34px 8px 6px}
+@media (max-width:820px){.hero-in{grid-template-columns:1fr}}
+.kick{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 10%,transparent);border-radius:999px;padding:3px 12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hero h1{font-size:clamp(34px,5.4vw,58px);line-height:1.04;letter-spacing:-.035em;margin:14px 0 12px;font-weight:800}
+.grad{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mute);font-size:16px;max-width:520px;margin:0 0 18px}
+.hbtn{display:flex;gap:10px;flex-wrap:wrap}
+.hbtn .go{background:linear-gradient(95deg,var(--acc),color-mix(in srgb,var(--acc) 60%,var(--acc2)));border:0;color:#fff;font-weight:700;padding:12px 22px;border-radius:12px;box-shadow:0 8px 24px color-mix(in srgb,var(--acc) 35%,transparent)}
+.hbtn button{border-radius:12px;padding:12px 18px}
+.hstats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hs{background:color-mix(in srgb,var(--card) 82%,transparent);border:1px solid var(--line);border-radius:18px;padding:18px 18px 14px;backdrop-filter:blur(6px);box-shadow:var(--shadow)}
+.hn{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.hl2{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+.sec-h{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:22px 2px 10px}
+.sec-h h2{font-size:22px;letter-spacing:-.02em;margin:0}.sec-h h2 small{font-size:13px;color:var(--mute);font-weight:500;margin-left:8px}
+.slate{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.poster{position:relative;overflow:hidden;background:linear-gradient(160deg,var(--card),color-mix(in srgb,var(--card) 88%,var(--acc)));border:1px solid var(--line);border-radius:18px;padding:16px 18px 14px;cursor:pointer;box-shadow:var(--shadow);transition:transform .18s,border-color .18s,box-shadow .18s;animation:rise .45s ease-out;display:flex;flex-direction:column}
+.poster:hover{transform:translateY(-4px);border-color:var(--acc);box-shadow:0 14px 34px color-mix(in srgb,var(--acc) 22%,transparent)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pn{position:absolute;right:10px;top:-14px;font-size:92px;font-weight:900;letter-spacing:-.06em;color:color-mix(in srgb,var(--acc) 15%,transparent);line-height:1;pointer-events:none}
+.ptop{display:flex;align-items:center;gap:10px;position:relative}
+.pep{background:var(--acc);color:#fff;font-weight:700;font-size:11px;letter-spacing:.08em;border-radius:6px;padding:2px 8px}
+.ptime{color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
+.film{position:relative;height:6px;border-radius:3px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 9px);margin:12px 0 10px}
+.film i{position:absolute;top:-3px;bottom:-3px;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));box-shadow:0 0 10px color-mix(in srgb,var(--acc) 60%,transparent)}
+.poster blockquote{margin:6px 0 8px;font-size:19px;line-height:1.3;font-weight:650;letter-spacing:-.01em;position:relative}
+.poster blockquote.act{font-style:italic;font-weight:550;font-size:16px;color:color-mix(in srgb,var(--ink) 88%,var(--mute))}
+.cutline{font-size:13px;color:var(--mute);line-height:1.4;margin-bottom:10px}
+.cutline span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc2);font-weight:700;margin-right:4px}
+.pbadges{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+.pact{display:flex;gap:8px;margin-top:12px}
+.pbtn{flex:1;font-weight:650;border-radius:10px}.pact .star{border-radius:10px;padding:7px 14px}
+.panel{border-radius:18px}
+.story .svgmap{width:100%;height:auto;display:block;margin-top:6px}
+.svgmap .gl{stroke:var(--line);stroke-dasharray:3 4}.svgmap .ax{fill:var(--mute);font-size:11px}
+.svgmap .ln2{fill:none;stroke:var(--acc);stroke-width:2.2;stroke-linejoin:round}
+.svgmap .dt{fill:var(--acc)}.svgmap .hr{fill:none;stroke:var(--ink);stroke-width:2;stroke-dasharray:3 2}
+.svgmap .pn2{fill:var(--acc2);stroke:var(--card);stroke-width:2}.svgmap .pt{font-size:11px;font-weight:800;fill:#1c1b19}
+.svgmap .xm{fill:var(--warn);font-size:15px;font-weight:700}
+.svgmap .eg{cursor:pointer}.svgmap .eg:hover .dt{r:6}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:6px}
+.legend span{display:flex;align-items:center;gap:6px}
+.lg{display:inline-block;width:11px;height:11px;border-radius:50%}
+.lg.dot{background:var(--acc)}.lg.pin{background:var(--acc2)}.lg.ring{border:2px dashed var(--ink)}.lg.x{background:none;color:var(--warn);width:auto;height:auto}.lg.x::before{content:"×";font-weight:700}
+.rings{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:8px 0 6px}
+.rg{display:flex;gap:12px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px}
+.rg svg{width:78px;height:78px;flex:none}.rb{fill:none;stroke:var(--line);stroke-width:8}.rf{fill:none;stroke:url(#rgrad);stroke-width:8;stroke-linecap:round;stroke:var(--acc)}
+.rt{font-size:17px;font-weight:800;fill:var(--ink)}.rg b{display:block;font-size:14px}.rg span{display:block;font-size:12px;color:var(--mute);line-height:1.3}
+details.more{margin-top:8px}details.more summary{cursor:pointer;color:var(--mute);font-size:13px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.stp{border-radius:12px;padding:8px 12px;border:1px solid var(--line);background:var(--bg);display:flex;flex-direction:column;min-width:96px}
+.stp b{font-size:14px}.stp span{font-size:11px;color:var(--mute)}
+.stp.code{border-left:4px solid #5b8def}.stp.ai{border-left:4px solid var(--acc)}.stp.both{border-left:4px solid var(--acc2)}.stp.human{border-left:4px solid var(--ok)}
+.runstats{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--mute)}.runstats b{color:var(--ink)}
+.cloud{display:flex;flex-wrap:wrap;gap:6px}.tag2{background:var(--chip);border-radius:999px;padding:3px 11px;font-size:13px}.tag2 b{color:var(--acc);margin-left:3px}
+@media (prefers-reduced-motion:reduce){.poster{animation:none}.poster:hover{transform:none}}
+/* ===== v3: promo-native visuals ===== */
+.hero-in{grid-template-columns:1.2fr .8fr;padding-top:26px}
+@media (max-width:820px){.hero-in{grid-template-columns:1fr}.hphone{margin-top:8px}}
+.hrow{display:flex;gap:30px;flex-wrap:wrap;margin-top:26px}
+.hrow .hs{background:none;border:0;box-shadow:none;padding:0;backdrop-filter:none}
+.hrow .hn{font-size:32px}
+.hphone{justify-self:center;width:min(268px,72vw);aspect-ratio:9/16;border-radius:40px;padding:9px;background:#0a0a0b;position:relative;cursor:pointer;transform:rotate(3deg);transition:transform .25s;box-shadow:0 40px 80px hsl(var(--h) 70% 25% / .5),0 0 0 2px #2b2b2f inset}
+.hphone:hover{transform:rotate(0deg) scale(1.02)}
+.hphone::before{content:"";position:absolute;top:14px;left:50%;width:70px;height:18px;margin-left:-35px;background:#0a0a0b;border-radius:12px;z-index:3}
+.hphone .scr{position:absolute;inset:9px;border-radius:32px;overflow:hidden;color:#fff;display:flex;flex-direction:column;padding:34px 16px 0;background:linear-gradient(165deg,hsl(var(--h) 78% 48%),hsl(calc(var(--h) + 50) 70% 15%))}
+.hphone .scr::before,.reel::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 55% at 15% 0%,rgba(255,255,255,.25),transparent 60%);pointer-events:none}
+.sp{display:flex;gap:4px;position:absolute;top:30px;left:16px;right:16px;z-index:2}
+.sp i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.3);position:relative;overflow:hidden}
+.sp i.done{background:#fff}.sp i.on::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:left;animation:fillbar 3.8s linear forwards}
+@keyframes fillbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.rtop{display:flex;justify-content:space-between;align-items:center;position:relative;margin-top:14px}
+.rep{background:rgba(0,0,0,.34);border-radius:999px;padding:3px 11px;font-size:11px;font-weight:700;letter-spacing:.08em}
+.rn{width:32px;height:32px;border-radius:50%;background:#fff;color:#16161a;font-weight:900;display:grid;place-items:center;font-size:15px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.rmid{flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;padding:6px 2px}
+.rmid.anim{animation:slideup .5s ease-out}
+@keyframes slideup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.rlab{font-size:10px;letter-spacing:.2em;font-weight:800;opacity:.85;margin-bottom:8px}
+.rhook{font-size:23px;line-height:1.16;font-weight:850;letter-spacing:-.015em;text-shadow:0 2px 16px rgba(0,0,0,.4)}
+.rhook.act{font-size:16.5px;font-style:italic;font-weight:650;line-height:1.3}
+.rbot{position:relative;margin:0 -16px;padding:34px 16px 16px;background:linear-gradient(0deg,rgba(0,0,0,.62) 30%,transparent)}
+.rcut{font-size:12.5px;line-height:1.35;opacity:.95}.rcut b{font-size:9.5px;letter-spacing:.16em;color:#ffd27a;margin-right:5px}
+.rtap{font-size:11px;opacity:.8;margin-top:8px;letter-spacing:.04em}
+.railwrap{position:relative}
+.rail{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x proximity;padding:10px 6px 22px;scrollbar-width:thin}
+.reel{flex:0 0 236px;scroll-snap-align:start;aspect-ratio:9/16;border-radius:26px;position:relative;overflow:hidden;color:#fff;cursor:pointer;display:flex;flex-direction:column;padding:14px 14px 0;background:linear-gradient(165deg,hsl(var(--h) 76% 47%),hsl(calc(var(--h) + 50) 68% 14%));box-shadow:0 16px 36px hsl(var(--h) 70% 18% / .5);transition:transform .22s,box-shadow .22s}
+.reel:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 26px 50px hsl(var(--h) 80% 30% / .6)}
+.reel .rbot{margin:0 -14px;padding:30px 14px 14px}
+.reel .rtop{margin-top:0}
+.rfilm{position:relative;height:4px;border-radius:2px;background:rgba(255,255,255,.28);margin-bottom:9px}.rfilm i{position:absolute;top:-1px;bottom:-1px;background:#fff;border-radius:2px}
+.rchips{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 10px}
+.rchip{background:rgba(255,255,255,.2);border-radius:999px;padding:1px 9px;font-size:11px}.rchip.warn{background:#ffd27a;color:#3a2600;font-weight:700}
+.ract{display:flex;gap:8px;align-items:center}
+.rplay{flex:1;background:#fff;color:#16161a;border:0;border-radius:999px;font-weight:800;padding:9px 0}
+.rplay:hover{background:#ffe9b8}
+.rstar{background:rgba(255,255,255,.22);border:0;color:#fff;border-radius:50%;width:38px;height:38px;font-size:16px;padding:0}
+.rarr{position:absolute;top:-50px;z-index:5;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:22px;line-height:1;padding:0}
+.rarr.l{right:50px}.rarr.r{right:4px}.rarr:hover{border-color:var(--acc);color:var(--acc)}
+@media (max-width:640px){.rarr{display:none}.reel{flex-basis:210px}}
+@media (prefers-reduced-motion:reduce){.sp i.on::after{animation:none;transform:none}.rmid.anim{animation:none}.hphone{transform:none}}
+
+/* ===== v4: grid view + phone player ===== */
+.seg2{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg2 button{border:0;border-radius:0;background:var(--card);padding:6px 12px}
+.seg2 button.on{background:var(--acc);color:#fff}
+.reelgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:18px;padding-top:6px}
+.reelgrid .reel{flex:none;width:auto}
+.reel.sel{outline:3px solid var(--acc);outline-offset:3px}
+.rn.rk{width:auto;min-width:32px;padding:0 9px;border-radius:999px;font-size:13px}
+.mphone{width:min(250px,100%);aspect-ratio:9/16;margin:0 auto 14px;border-radius:34px;padding:8px;background:#0a0a0b;position:relative;box-shadow:0 22px 50px hsl(var(--h) 70% 25% / .45),0 0 0 2px #2b2b2f inset}
+.mphone .scr{position:absolute;inset:8px;border-radius:27px;overflow:hidden;color:#fff;display:flex;flex-direction:column;padding:30px 14px 0;background:linear-gradient(165deg,hsl(var(--h) 78% 46%),hsl(calc(var(--h) + 50) 70% 14%))}
+.mphone .scr::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 55% at 15% 0%,rgba(255,255,255,.22),transparent 60%);pointer-events:none}
+.mphone .rbot{margin:0 -14px;padding:24px 14px 12px}
+.mphone .rtop{margin-top:0}
+.mbar{position:absolute;top:14px;left:14px;right:14px;height:3px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden;z-index:2}
+.mbar i{display:block;height:100%;width:0;background:#fff}
+.mwho{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;opacity:.9;margin-bottom:6px}
+.msub{font-size:20px;font-weight:800;line-height:1.22;letter-spacing:-.01em;text-shadow:0 2px 14px rgba(0,0,0,.4)}
+.msub.act{font-size:15px;font-style:italic;font-weight:600;line-height:1.3}
+.mtag{display:inline-block;align-self:flex-start;font-size:10px;font-weight:800;letter-spacing:.12em;background:#fff;color:#16161a;border-radius:5px;padding:1px 8px;margin:0 6px 8px 0}
+.mtag.c{background:#ffd27a}
+.cta{display:inline-block;white-space:nowrap;margin-top:16px;background:#fff;color:#16161a;font-weight:800;border-radius:999px;padding:10px 18px;font-size:14px;box-shadow:0 8px 22px rgba(0,0,0,.35)}
+.rmid.end{align-items:flex-start}
+.script{max-height:190px}
+
+/* ===== v5: status, export, own picks ===== */
+.statchip{font-size:12px;border-radius:999px;padding:4px 12px;color:var(--mute)}
+.statchip.run{color:#fff;background:var(--acc);border-color:var(--acc)}
+.statchip.done{color:var(--ok)}.statchip.fail{color:var(--acc)}
+.mine{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.mine h3{margin:0 0 2px;font-size:15px}
+.mrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.mrow input{min-width:0}#g-ep{width:96px}#g-s,#g-e{width:120px}#g-n{flex:1;min-width:140px}
+#g-list{display:flex;gap:6px;flex-wrap:wrap}
+.tag2 .x{border:0;background:none;padding:0 0 0 6px;color:var(--mute);cursor:pointer}
+.tag2 .x:hover{color:var(--acc)}
+
+/* ===== v6: run tab, mobile, rail ===== */
+html,body{max-width:100%;overflow-x:hidden}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0 14px}
+.steps>div{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.steps b{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2));font-size:16px}
+.steps span{display:block;font-size:12px;color:var(--mute);font-weight:400}
+.dz{display:flex;align-items:center;gap:16px;justify-content:center;border:2px dashed color-mix(in srgb,var(--acc) 45%,var(--line));border-radius:18px;padding:34px 18px;margin:12px 0 8px;background:color-mix(in srgb,var(--acc) 5%,transparent);cursor:pointer;transition:background .15s,border-color .15s;text-align:left}
+.dz.over{background:color-mix(in srgb,var(--acc) 16%,transparent);border-color:var(--acc)}
+.dzi{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:22px;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.fl{margin:6px 0 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.x2{border:0;background:none;color:var(--mute);text-decoration:underline;padding:0;cursor:pointer}
+.presets{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.presets button{padding:3px 12px;border-radius:999px;font-size:13px}
+.est{font-size:13px;color:var(--mute);margin:4px 0 12px}.est b{color:var(--ink)}
+.rail{padding-bottom:40px}
+.reel{box-shadow:0 12px 26px hsl(var(--h) 70% 18% / .38)}
+@media (max-width:820px){
+  header .wrap{gap:6px}
+  nav{order:3;width:100%;overflow-x:auto}
+  .right{margin-left:auto}
+  .hero-in{grid-template-columns:minmax(0,1fr);padding-top:16px}
+  .hero-in>div{min-width:0}
+  .hero p{max-width:100%}
+  .hrow{gap:20px}
+  .sec-h .seg2{margin-right:0 !important;margin-left:0 !important}
+  .steps{grid-template-columns:1fr}
+  .dz{flex-direction:column;text-align:center;padding:24px 12px}
+  .tools input[type=search]{min-width:0;width:100%}
+}
+
+/* ?redact=1 blurs every line of script text, so screenshots can be shared without sharing Kuku's content */
+.redact .rhook,.redact .msub,.redact .mwho,.redact .rcut,.redact .q,.redact .ln,.redact .why,.redact .script,.redact td,.redact .mb .sub,.redact .mb .chips+.k+.sub{filter:blur(5px);user-select:none}
+
+@media (max-width:520px){
+  .reelgrid{grid-template-columns:1fr}
+  .reelgrid .reel{aspect-ratio:3/4}
+  .statchip{white-space:nowrap;font-size:11px;padding:3px 9px}
+  header .wrap{row-gap:2px}
+  #run-sel{max-width:96px}
+}
+.statchip{white-space:nowrap}
+.health{list-style:none;margin:0;padding:0;font-size:12.5px;color:var(--mute)}
+.health li{padding:3px 0 3px 22px;position:relative;line-height:1.35}
+.health li b{position:absolute;left:0;color:var(--ok)}
+.health li.warn b{color:var(--warn)}.health li.warn{color:var(--ink)}
+.mutetxt{text-transform:none;letter-spacing:0;font-weight:400}
+
+/* ===== v7: file check, overview chips, evaluation notes ===== */
+.insp{margin:8px 0 12px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:13px;line-height:1.45}
+.insp.ok{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}.insp.warn{border-color:color-mix(in srgb,var(--warn) 55%,var(--line))}.insp.bad{border-color:var(--acc);color:var(--ink)}
+.insp div{color:var(--warn);margin-top:3px}
+.ovr{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
+.ochip{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--mute);background:color-mix(in srgb,var(--card) 80%,transparent)}
+.notice{margin:8px 0 4px;padding:9px 12px;border-radius:12px;font-size:13px;border:1px solid color-mix(in srgb,var(--warn) 55%,var(--line));background:color-mix(in srgb,var(--warn) 8%,transparent)}
+.redact .insp,.redact .notice{filter:none}
+
+/* ---- polish: no scrollbar on the slate rail, ring position indicator, soft edges ---- */
+.rail{scrollbar-width:none;-ms-overflow-style:none;padding:14px 10px 34px;scroll-padding-left:10px}
+.rail::-webkit-scrollbar{display:none;width:0;height:0}
+.rail{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%)}
+.railwrap.atl .rail{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%)}
+.railwrap.atr .rail{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 100%);mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 100%)}
+.railwrap.atl.atr .rail{-webkit-mask-image:none;mask-image:none}
+#v-dash .sec-h{flex-wrap:nowrap}#v-dash .sec-h .sub{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#v-dash .sec-h .seg2{flex:none}
+.rarr{transition:all .18s;box-shadow:0 4px 14px rgba(0,0,0,.12)}.rarr:hover:not(:disabled){background:var(--acc);color:#fff;transform:scale(1.08)}.rarr:disabled{opacity:.35;cursor:default}
+.rring{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.rring svg{flex:none;transform:rotate(-90deg);filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.rring circle{fill:none;stroke-width:5}.rring .rt{stroke:rgba(255,255,255,.26)}.rring .ra{stroke:#fff;stroke-linecap:round}
+.rring span{display:flex;flex-direction:column;line-height:1.15;font-size:12.5px}.rring span b{font-weight:800;letter-spacing:.02em}.rring span em{font-style:normal;font-size:10.5px;opacity:.75}
+.reel{border:1px solid rgba(255,255,255,.14)}
+.reel .rn{box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.sec-h{margin-top:34px}
+.panel{border-radius:22px}
+
+/* ---- adding episodes is step one: it is the first tab and has its own button on the dashboard ---- */
+#nav .upl{color:var(--acc);font-weight:700}#nav .upl.on{color:var(--ink)}
+.hbtn #h-play{background:transparent;border:1px solid var(--line);color:var(--ink);box-shadow:none}.hbtn #h-play:hover{border-color:var(--acc)}
+
+/* ---- first screen is only Upload & Run; the result tabs appear once a run has finished ---- */
+html.locked #nav button:not([data-t=run]), html.locked #run-sel{display:none}
+#openold-a{color:var(--acc);font-weight:700;text-decoration:none;border-bottom:1px solid currentColor}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand">Promo<b>Finder</b></div>
+  <nav id="nav">
+    <button data-t="run" class="upl">⬆ Upload &amp; Run</button>
+    <button data-t="dash" class="on">Dashboard</button>
+    <button data-t="promos">Promos</button>
+    <button data-t="short">Shortlist<span class="badge" id="nstar" hidden>0</span></button>
+  </nav>
+  <div class="right">
+    <button id="stat" class="statchip" title="Processing status - click to open the Run tab">● Idle</button>
+    <select id="run-sel" title="Which run to show"></select>
+    <button id="theme" title="Toggle dark mode">◐</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+
+<!-- ================= DASHBOARD ================= -->
+<section id="v-dash">
+  <div class="hero" id="hero"></div>
+
+  <div class="sec-h"><h2>Your slate <small>post in this order</small></h2><span class="sub" id="slatesub"></span><span class="seg2" style="margin-left:auto;margin-right:104px"><button id="dl-slate">⬇ Slate CSV</button><button id="dl-slatej">⬇ Slate JSON</button><button id="dl-slatemd">⬇ Slate .md</button></span></div>
+  <div class="railwrap"><button class="rarr l" aria-label="Scroll left">‹</button><div class="rail" id="slate"></div><button class="rarr r" aria-label="Scroll right">›</button></div>
+
+  <div class="panel story">
+    <h2>Story map</h2>
+    <div class="sub">How strong the best clip of every episode is. <b>Numbered pins</b> are the slate; <b>rings</b> are clips a human picked by hand. Click an episode to see its clips.</div>
+    <div id="storymap"></div>
+    <div class="legend"><span><i class="lg dot"></i>best clip</span><span><i class="lg pin"></i>in the slate</span><span><i class="lg ring"></i>human pick</span><span><i class="lg x"></i>only sensitive clips</span></div>
+  </div>
+
+  <div class="panel">
+    <h2>Can you trust it?</h2>
+    <div class="sub">Tested against clips people picked by hand (two reference sets, 15 clips). “Found” means the tool made a clip overlapping the human one by at least 50%.</div>
+    <div class="notice" id="evnote"></div>
+    <div class="rings" id="rings"><div class="sub">Checking…</div></div>
+    <details class="more"><summary>Show every reference clip</summary><div id="evalbox"></div></details>
+    <div class="mine"><h3>Test it against your own picks</h3>
+      <div class="sub">Add clips you would post, one per row (episode, start, end like 01:24). The tool checks whether it found each one and how it ranked it. Saved in this browser.</div>
+      <div class="mrow"><input id="g-ep" type="number" min="1" placeholder="Episode"><input id="g-s" placeholder="Start 01:24"><input id="g-e" placeholder="End 02:20"><input id="g-n" placeholder="Note (optional)"><button id="g-add">Add</button></div>
+      <div id="g-list"></div>
+      <div style="margin-top:8px"><button class="go" id="g-run" style="padding:8px 18px">Evaluate my picks</button> <button id="g-clear">Clear</button></div>
+      <div id="g-out"></div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel"><h2>How it runs</h2><div class="sub">Code does the cheap, checkable work. The model answers narrow questions. A person decides.</div><div id="flow"></div></div>
+    <div class="panel"><h2>What it found</h2><div class="sub">Kinds of hooks and cliffhangers across all clips.</div><div id="types"></div></div>
+  </div>
+</section>
+
+<!-- ================= PROMOS ================= -->
+<section id="v-promos" hidden>
+  <div class="tools">
+    <input type="search" id="q" placeholder="Search hook, cliffhanger, why…  ( / )">
+    <label>Episode <select id="ep"><option value="">All</option></select></label>
+    <label>Sort <select id="sort"><option value="rank">Final rank</option><option value="composite">Judge score</option>
+      <option value="stranger">Stranger test</option><option value="episode">Episode</option><option value="len">Length</option></select></label>
+    <label><input type="checkbox" id="safe"> Hide flagged</label>
+    <label><input type="checkbox" id="grounded"> Quotes verified</label>
+    <label><input type="checkbox" id="starred"> ★ only</label>
+    <span class="seg2"><button id="vg" class="on" title="Reel cards">▦ Grid</button><button id="vl" title="Detailed list">☰ List</button></span>
+    <span class="seg2"><button id="expcsv" title="Download the clips shown (all of them, not only the first 150)">⬇ CSV</button><button id="expjson" title="Download the clips shown as JSON">⬇ JSON</button></span>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="sub">Keys: <span class="kbd">j</span>/<span class="kbd">k</span> move · <span class="kbd">p</span> preview · <span class="kbd">s</span> star · <span class="kbd">/</span> search</div>
+  <div id="list"></div>
+</section>
+
+<!-- ================= SHORTLIST ================= -->
+<section id="v-short" hidden>
+  <div class="panel">
+    <h2>Editor's shortlist</h2>
+    <div class="sub">Star promos in the Promos tab, add a note, then export the brief for whoever cuts the video. Saved in this browser.</div>
+    <div class="tools"><button id="copybrief">Copy brief (text)</button><button id="exportcsv">Export CSV</button><button id="clearstar">Clear all</button></div>
+    <div id="shortlist"></div>
+  </div>
+</section>
+
+<!-- ================= RUN ================= -->
+<section id="v-run" hidden>
+  <div class="steps">
+    <div><b>1</b><div>Add the episodes<span>Drop the screenplay .txt files</span></div></div>
+    <div><b>2</b><div>Run<span>The model reads every episode</span></div></div>
+    <div><b>3</b><div>Review the slate<span>Preview, shortlist, export</span></div></div>
+  </div>
+  <div class="panel">
+    <h2>Run it on a new show</h2>
+    <div class="sub">The same pipeline as the command line. Your files stay on this computer; only the model calls leave it.</div>
+    <div class="sub" id="openold" hidden style="margin:-4px 0 12px">Already have a finished run? <a href="#" id="openold-a">Open its results</a></div>
+    <div class="dz" id="dz"><div class="dzi">⬆</div><div><b>Drag and drop the episode files here (.txt, .md, .srt, or one .zip)</b><div class="sub">or <button id="pick">choose files…</button> <button id="pickdir">choose a whole folder…</button></div><div class="sub">Any number of episodes: select many files at once (Ctrl+A in the file window), drop a folder, or add more later — they are all kept together.</div></div></div>
+    <input type="file" id="files" accept=".txt,.md,.srt,.zip" multiple hidden>
+    <input type="file" id="folder" webkitdirectory directory multiple hidden>
+    <div class="fl" id="flist"><span class="sub">No files chosen.</span></div>
+    <div class="insp" id="inspect" hidden></div>
+    <div class="grid">
+      <label class="f">…or a folder path on this computer<input type="text" id="dir" placeholder="C:\path\to\scripts"></label>
+      <label class="f">Run name (optional)<input type="text" id="name" placeholder="e.g. my_show"></label>
+    </div>
+    <label class="f" style="margin-top:10px">Only these episodes (optional)<input type="text" id="eps" placeholder="e.g. 1 3 18 — blank means all"></label>
+    <div class="presets"><span class="sub">Quick test:</span><button data-p="1 2 3">first 3</button><button data-p="1 2 3 4 5 6 7 8 9 10">first 10</button><button data-p="">all</button></div>
+    <div class="opts">
+      <label><input type="checkbox" id="stranger" checked> Stranger test (better quality, more model calls)</label>
+      <label><input type="checkbox" id="mock"> Offline demo (no model - plumbing test, results are not real)</label>
+    </div>
+    <div class="est" id="est"></div>
+    <button class="go" id="run">Run</button> <button id="check" title="Upload and show what was detected, without running anything">Check files</button> <button id="stop" hidden>Stop</button>
+    <div class="msg" id="msg"></div>
+    <div class="bar" id="barwrap" hidden><i id="bar"></i></div>
+    <pre id="log" hidden></pre>
+  </div>
+</section>
+</main>
+
+<!-- ================= PREVIEW MODAL ================= -->
+<div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = t => { const m = Math.floor(t/60), s = t - m*60; return String(m).padStart(2,'0')+':'+s.toFixed(1).padStart(4,'0'); };
+const segText = p => p.segments.map(s => `Ep${s.episode} ${fmt(s.start)}–${fmt(s.end)}`).join(' + ');
+const dur = p => p.segments.reduce((a,s)=>a+(s.end-s.start),0);
+const norm = s => String(s||'').toLowerCase().replace(/[’]/g,"'").replace(/[^a-z0-9 ]+/g,'').replace(/\s+/g,' ').trim();
+const stripLabel = q => String(q||'').replace(/^\s*\[?[\d:.]*\]?\s*[A-Z][A-Z0-9 '.\-\/]*(\([^)]*\))*\s*:\s*/, '');
+const pk = p => `${p.episode}:${p.segments[0].start}`;
+const meter = v => `<span class="meter" title="${v}/5">${[1,2,3,4,5].map(i=>`<i class="${i<=Math.round(v)?'f':''}"></i>`).join('')}</span>`;
+function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('on'); setTimeout(()=>e.classList.remove('on'),1600); }
+
+let RUN='', DATA=[], VIEW=[], SEL=-1, STARS={}, TAB='dash', JOB='', poll=null;
+
+/* ---------- theme + tabs ---------- */
+$('#theme').onclick = () => {
+  const r = document.documentElement, dark = getComputedStyle(r).getPropertyValue('--bg').trim()==='#141413';
+  r.dataset.theme = dark ? 'light' : 'dark'; try{localStorage.setItem('pf_theme', r.dataset.theme);}catch(e){}
+};
+try{ if(new URLSearchParams(location.search).get('redact')) document.documentElement.classList.add('redact'); }catch(e){}
+try{ const t = new URLSearchParams(location.search).get('theme') || localStorage.getItem('pf_theme'); if(t) document.documentElement.dataset.theme = t; }catch(e){}
+function unlock(){ document.documentElement.classList.remove('locked'); try{sessionStorage.setItem('pf_open','1');}catch(e){} }
+(function(){ let open=false; try{ const q=new URLSearchParams(location.search), h=location.hash.slice(1); open=!!q.get('run')||['dash','promos','short','preview'].includes(h)||sessionStorage.getItem('pf_open')==='1'; }catch(e){}
+  if(!open) document.documentElement.classList.add('locked'); })();
+function tab(t){
+  if(t!=='run' && document.documentElement.classList.contains('locked')) t='run';
+  TAB = t;
+  ['dash','promos','short','run'].forEach(x => $('#v-'+x).hidden = x!==t);
+  $$('#nav button').forEach(b => b.classList.toggle('on', b.dataset.t===t));
+  if (t==='short') renderShort();
+  if (t==='promos') render();
+  history.replaceState(null,'','#'+t);
+}
+$$('#nav button').forEach(b => b.onclick = () => tab(b.dataset.t));
+
+/* ---------- runs + data ---------- */
+async function loadRuns(pick){
+  const runs = await (await fetch('/api/runs')).json();
+  const sel = $('#run-sel');
+  sel.innerHTML = runs.map(r=>`<option>${esc(r)}</option>`).join('');
+  if (!runs.length) { RUN=''; DATA=[]; renderAll(); return; }
+  sel.value = runs.includes(pick) ? pick : (runs.includes(RUN) ? RUN : (runs.includes('out') ? 'out' : runs[0]));
+  await loadData();
+}
+async function loadData(){
+  RUN = $('#run-sel').value;
+  DATA = await (await fetch('/api/results?run='+encodeURIComponent(RUN))).json();
+  try{ STARS = JSON.parse(localStorage.getItem('pf_stars_'+RUN)||'{}'); }catch(e){ STARS={}; }
+  try{ MINE = JSON.parse(localStorage.getItem('pf_mine_'+RUN)||'[]'); }catch(e){ MINE=[]; }
+  const eps=[...new Set(DATA.map(p=>p.episode))].sort((a,b)=>a-b);
+  $('#ep').innerHTML='<option value="">All</option>'+eps.map(e=>`<option>${e}</option>`).join('');
+  renderAll();
+}
+$('#run-sel').onchange = loadData;
+function saveStars(){ try{localStorage.setItem('pf_stars_'+RUN, JSON.stringify(STARS));}catch(e){} const n=Object.keys(STARS).length; $('#nstar').textContent=n; $('#nstar').hidden=!n; }
+function renderAll(){ saveStars(); renderDash(); if(TAB==='promos')render(); if(TAB==='short')renderShort(); }
+
+let SLATE=[], QUAL={};
+const short=(s,n)=>{ s=String(s||'').trim(); if(s.length<=n) return s; const c=s.slice(0,n); return c.slice(0,Math.max(c.lastIndexOf(' '),n*0.6))+'…'; };
+/* ---------- dashboard ---------- */
+let EPI={show:'',episodes:{}}, EVAL=null, RLOG={};
+function countUp(el,to,suffix=''){ if(matchMedia('(prefers-reduced-motion: reduce)').matches){ el.textContent=to+suffix; return; } const t0=performance.now(), d=900; (function f(n){ const k=Math.min(1,(n-t0)/d), v=Math.round(to*(1-Math.pow(1-k,3))); el.textContent=v+suffix; if(k<1) requestAnimationFrame(f); })(t0); }
+async function renderDash(){
+  if(!DATA.length){ $('#hero').innerHTML='<div class="hero-in"><div><div class="kick">PromoFinder</div><h1>No finished run yet.</h1><p>Open the <b>Upload &amp; Run</b> tab to upload a show\'s screenplays and start one.</p></div></div>';
+    ['slate','storymap','rings','flow','types','evalbox'].forEach(i=>$('#'+i).innerHTML=''); return; }
+  const q=s=>fetch(s+encodeURIComponent(RUN)).then(r=>r.json()).catch(()=>null);
+  const [epi,rl,ql]=await Promise.all([q('/api/episodes?run='),q('/api/runlog?run='),q('/api/quality?run=')]);
+  EPI=epi&&epi.episodes?epi:{show:'',episodes:{}}; RLOG=rl||{}; EVAL=null; QUAL=ql||{};
+  const eps=new Set(DATA.map(p=>p.episode)), ver=DATA.filter(p=>p.grounded_hook&&p.grounded_cliff).length;
+  let sl=[]; try{ sl=await (await fetch('/api/slate?run='+encodeURIComponent(RUN))).json(); }catch(e){}
+  const req=(RLOG.llm?(RLOG.llm.calls||0)+(RLOG.llm.cache_hits||0):0);
+  const stat=(id,n,l,suf)=>`<div class="hs"><div class="hn" id="${id}" data-to="${n}" data-suf="${suf||''}">0</div><div class="hl2">${l}</div></div>`;
+  const items0=slateItems(sl);
+  $('#hero').innerHTML=`<div class="hero-in"><div>
+      <div class="kick">${esc(EPI.show||'PromoFinder')}</div>
+      <h1>${eps.size} episodes in.<br><span class="grad">${sl.length||'A few'} promos</span> to post.</h1>
+      <p>Reads every screenplay, finds the moments that open on a hook and stop on a cliffhanger, checks them, and hands the editor an ordered plan.</p>
+      <div class="hbtn"><button class="go" id="h-add" onclick="tab('run')">⬆ Add your episodes</button><button id="h-play">▶ Preview the #1 promo</button><button id="h-all">Browse all ${DATA.length} clips</button></div>
+      <div class="ovr" id="ovr"></div>
+      <div class="hrow">${stat('c1',eps.size,'episodes read')}${stat('c2',DATA.length,'clips found')}${stat('c3',Math.round(100*ver/DATA.length),'model quotes verified','%')}${stat('c4',req,'model requests')}</div></div>
+    <div class="hphone" id="hphone" style="--h:${items0[0]?hueOf(items0[0].p):350}"><div class="scr" id="hscr"></div></div></div>`;
+  $$('.hn').forEach(e=>countUp(e,+e.dataset.to,e.dataset.suf));
+  startReel(items0);
+  { const L=RLOG.llm||{}, sc=(sl.length?sl.reduce((a,x)=>a+(x.final_score||0),0)/sl.length:null), secs=RLOG.seconds||0;
+    const chips=[`⏱ ${secs>=90?Math.round(secs/60)+' min':Math.round(secs)+' s'}${L.calls===0?' (rerun from cache)':''}`,`🧠 ${esc(L.model||'model')}${L.tournament_model?' + '+esc(L.tournament_model)+' (head-to-head)':''}`,
+      sc!=null?`★ slate model score ${sc.toFixed(2)} (about 1–5; the model's rating, not audience data)`:'',
+      QUAL.quote_fields?`✓ validators: every shown quote is a real line of its clip${QUAL.quotes_replaced?` (${QUAL.quotes_replaced} replaced)`:''}; ${QUAL.dropped_by_validators||0} candidates rejected`:''].filter(Boolean);
+    $('#ovr').innerHTML=chips.map(c=>`<span class="ochip">${c}</span>`).join(''); }
+  $('#h-all').onclick=()=>tab('promos');
+  $('#h-play').onclick=()=>{ const t=sl[0]&&DATA.find(p=>p.rank===sl[0].rank&&p.episode===sl[0].episode); openPreview(t||DATA.slice().sort((a,b)=>a.rank-b.rank)[0]); };
+  SLATE=sl; renderSlate(sl); renderStory(sl); renderMine(); $('#g-out').innerHTML='';
+  $('#dl-slate').onclick=()=>exportCSV(slateItems(sl).map(x=>x.p),'slate.csv'); $('#dl-slatej').onclick=()=>exportJSON(slateItems(sl).map(x=>x.p),'slate.json');
+  $('#dl-slatemd').onclick=async()=>{ const r=await fetch('/api/file?run='+encodeURIComponent(RUN)+'&name=slate.md'); if(!r.ok) return toast('This run has no slate.md'); download(await r.blob(),'slate.md'); toast('Downloaded slate.md'); };
+  // what it found
+  const cnt=k=>Object.entries(DATA.reduce((m,p)=>{const v=p[k]||'other'; m[v]=(m[v]||0)+1; return m;},{})).sort((x,y)=>y[1]-x[1]).slice(0,6);
+  const cloud=(t,rows)=>`<div class="k" style="margin:8px 0 5px">${t}</div><div class="cloud">${rows.map(([n,c])=>`<span class="tag2">${esc(n.replace(/_/g,' '))} <b>${c}</b></span>`).join('')}</div>`;
+  $('#types').innerHTML=cloud('Hooks',cnt('hook_type'))+cloud('Cliffhangers',cnt('cliffhanger_type'));
+  // how it runs
+  const st=(c,t,s)=>`<div class="stp ${c}"><b>${t}</b><span>${s}</span></div>`;
+  const l=RLOG.llm||{};
+  $('#flow').innerHTML=`<div class="flow">${st('code','Parse','code')}${st('code','Funnel','code')}${st('ai','Judge','AI · 1 call / episode')}${st('code','Validate','code')}${st('ai','Compare','AI · head to head')}${st('both','Slate','code + AI')}${st('human','Editor','human')}</div>
+    <div class="runstats"><span><b>${esc(l.model||'–')}</b> model</span><span><b>${req||'–'}</b> requests</span><span><b>${(RLOG.model_call_failures||[]).length}</b> failures</span><span><b>${RLOG.seconds?Math.round(RLOG.seconds)+'s':'–'}</b> this run</span></div>
+    <div class="sub" style="margin-top:8px">The model is one line in the config file; results are cached, so a rerun is free.</div>
+    ${(QUAL.health||[]).length?`<div class="k" style="margin:12px 0 4px">Run health <span class="mutetxt">(measured on this run, no human labels needed)</span></div><ul class="health">${QUAL.health.map(h=>`<li class="${h.level}"><b>${h.level==='ok'?'✓':'⚠'}</b> ${esc(h.text)}</li>`).join('')}</ul>`:''}`;
+  loadEval(sl);
+}
+const HUES={shock_line:352,accusation:24,reveal:272,arrival:208,threat:332,violence:6,cut_off:188,question:158,twist_line:288,held_threat:312,explosion:30,cut_off_line:188};
+const hueOf=p=>HUES[p.hook_type]??((p.episode*47)%360);
+const isAct=t=>/^\s*(\[[^\]]*\]\s*)?(ACTION|SOUND)\b/.test(t||'');
+function slateItems(sl){
+  let items=(sl||[]).map(s=>({s,p:DATA.find(p=>p.rank===s.rank&&p.episode===s.episode)})).filter(x=>x.p);
+  if(!items.length) items=DATA.filter(p=>!p.blocked).sort((a,b)=>a.rank-b.rank).slice(0,6).map((p,i)=>({s:{slate_rank:i+1},p}));
+  return items;
+}
+let REELT=null, REELI=0;
+function startReel(items){
+  clearInterval(REELT); if(!items.length) return; REELI=0;
+  const paint=()=>{
+    const ph=$('#hphone'); if(!ph){ clearInterval(REELT); return; }
+    const {s,p}=items[REELI%items.length], act=isAct(p.hook_line), n=Math.min(items.length,6), cur=REELI%n;
+    ph.style.setProperty('--h',hueOf(p));
+    $('#hscr').innerHTML=`<div class="sp">${Array.from({length:n},(_,k)=>`<i class="${k<cur?'done':k===cur?'on':''}"></i>`).join('')}</div>
+      <div class="rtop"><span class="rep">EP ${p.episode} · ${dur(p).toFixed(0)}s</span><span class="rn">${s.slate_rank}</span></div>
+      <div class="rmid anim"><div class="rlab">HOOK · FIRST 3 SECONDS</div><div class="rhook ${act?'act':''}">${act?'':'“'}${esc(short(stripLabel(p.hook_line),95))}${act?'':'”'}</div></div>
+      <div class="rbot"><div class="rcut"><b>CUTS ON</b> ${esc(short(stripLabel(p.cliffhanger_line),80))}</div><div class="rtap">▶ tap to preview</div></div>`;
+    ph.onclick=()=>openPreview(p);
+  };
+  paint();
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches) REELT=setInterval(()=>{ REELI++; paint(); },3800);
+}
+function renderSlate(sl){
+  const items=slateItems(sl||[]), real=(sl||[]).length>0, sp=['no spoiler','minor spoiler','spoiler risk'];
+  $('#slatesub').textContent=real?'At most two per episode · no sensitive content · spoiler-labelled · varied hooks':'This run has no slate (older run): showing the top 6 by rank.';
+  $('#slate').innerHTML=items.map(({s,p})=>{
+    const E=EPI.episodes[p.episode], D=E?E.duration:0, g=p.segments.filter(x=>x.episode===p.episode), star=STARS[pk(p)], act=isAct(p.hook_line), sv=s.spoiler_level;
+    const mm=x=>Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0');
+    const film=D&&g.length?`<div class="rring" title="Where this clip sits in Episode ${p.episode}"><svg viewBox="0 0 40 40" width="40" height="40"><circle class="rt" cx="20" cy="20" r="15" pathLength="100"/>${g.map(x=>{const a=Math.max(0,Math.min(99,100*x.start/D)),w=Math.max(5,Math.min(100-a,100*(x.end-x.start)/D));return `<circle class="ra" cx="20" cy="20" r="15" pathLength="100" stroke-dasharray="${w.toFixed(1)} ${(100-w).toFixed(1)}" stroke-dashoffset="${(-a).toFixed(1)}"/>`}).join('')}</svg><span><b>${mm(g[0].start)}–${mm(g[g.length-1].end)}</b><em>of ${mm(D)} episode</em></span></div>`:'';
+    return `<article class="reel" data-k="${pk(p)}" style="--h:${hueOf(p)}">
+      <div class="rtop"><span class="rep">EP ${p.episode} · ${dur(p).toFixed(0)}s</span><span class="rn">${s.slate_rank}</span></div>
+      <div class="rmid"><div class="rlab">HOOK</div><div class="rhook ${act?'act':''}">${act?'':'“'}${esc(short(stripLabel(p.hook_line),100))}${act?'':'”'}</div></div>
+      <div class="rbot">${film}<div class="rcut"><b>CUTS ON</b> ${esc(short(stripLabel(p.cliffhanger_line),88))}</div>
+        <div class="rchips">${s.joined_previous?'<span class="rchip">+ previous ep</span>':''}${sv!=null?`<span class="rchip${sv>=2?' warn':''}" title="${esc(s.spoiler_reason||'')}">${sp[sv]}</span>`:''}<span class="rchip">hook ${p.scores.hook}/5</span></div>
+        <div class="ract"><button class="rplay" data-a="p">▶ Preview</button><button class="rstar" data-a="s" title="Shortlist">${star?'★':'☆'}</button></div></div></article>`; }).join('');
+  $$('#slate .reel').forEach(c=>{ const p=DATA.find(x=>pk(x)===c.dataset.k);
+    c.querySelector('[data-a=p]').onclick=e=>{e.stopPropagation(); openPreview(p);}; c.querySelector('[data-a=s]').onclick=e=>{e.stopPropagation(); toggleStar(p);};
+    c.onclick=()=>openPreview(p); });
+  const rl=$('#slate'), l=$('.rarr.l'), r=$('.rarr.r');
+  if(l){ l.onclick=()=>rl.scrollBy({left:-520,behavior:'smooth'}); r.onclick=()=>rl.scrollBy({left:520,behavior:'smooth'});
+    const edge=()=>{ l.disabled=rl.scrollLeft<4; r.disabled=rl.scrollLeft>rl.scrollWidth-rl.clientWidth-4; rl.parentElement.classList.toggle('atl',l.disabled); rl.parentElement.classList.toggle('atr',r.disabled); };
+    rl.onscroll=edge; edge(); setTimeout(edge,300); }
+}
+function renderStory(sl){
+  const N=Math.max(50,...DATA.map(p=>p.episode)), W=1000,H=250,L=34,R=12,T=16,B=26, best={}, flagged=new Set(DATA.map(p=>p.episode));
+  DATA.forEach(p=>{ if(!p.blocked&&!(p.flags||[]).some(f=>['sexual','torture','self_harm','graphic_violence'].includes(f))&&(best[p.episode]==null||p.final_score>best[p.episode].final_score)) best[p.episode]=p; });
+  const vals=Object.values(best).map(p=>p.final_score), lo=Math.floor(Math.min(...vals)*2)/2-0.2, hi=Math.ceil(Math.max(...vals)*2)/2;
+  const X=e=>L+(W-L-R)*(e-1)/(N-1), Y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  const pts=[]; for(let e=1;e<=N;e++) if(best[e]) pts.push([X(e),Y(best[e].final_score),e]);
+  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' '), area=line+` L${pts[pts.length-1][0]} ${H-B} L${pts[0][0]} ${H-B} Z`;
+  const grid=[3,4,5].filter(v=>v>lo&&v<hi).map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" class="ax" text-anchor="end">${v}</text>`).join('');
+  const xl=[]; for(let e=1;e<=N;e+=(e===1?4:5)) xl.push(`<text x="${X(e)}" y="${H-8}" class="ax" text-anchor="middle">${e}</text>`);
+  const hum=new Set(); if(EVAL) EVAL.sets.forEach(s=>s.items.forEach(i=>hum.add(i.episode)));
+  const pin=new Map((sl||[]).map(s=>[s.episode,s.slate_rank]));
+  const dots=pts.map(([x,y,e])=>`<g class="eg" data-e="${e}"><circle cx="${x}" cy="${y}" r="${pin.has(e)?0:3.4}" class="dt"/><title>Episode ${e}: best clip #${best[e].rank}, score ${best[e].final_score}</title><circle cx="${x}" cy="${y}" r="11" fill="transparent"/></g>`).join('');
+  const rings=[...hum].filter(e=>best[e]).map(e=>`<circle cx="${X(e)}" cy="${Y(best[e].final_score)}" r="8.5" class="hr"><title>A human picked a clip in Episode ${e}</title></circle>`).join('');
+  const pins=[...pin].filter(([e])=>best[e]||true).map(([e,r])=>{ const b=best[e]; if(!b) return ''; return `<g class="eg" data-e="${e}"><circle cx="${X(e)}" cy="${Y(b.final_score)}" r="11" class="pn2"/><text x="${X(e)}" y="${Y(b.final_score)+4}" text-anchor="middle" class="pt">${r}</text><title>Slate #${r}: Episode ${e}</title></g>`; }).join('');
+  const xs=[]; for(let e=1;e<=N;e++) if(!best[e]&&flagged.has(e)) xs.push(`<text x="${X(e)}" y="${H-B-6}" text-anchor="middle" class="xm">×<title>Episode ${e}: only sensitive clips</title></text>`);
+  $('#storymap').innerHTML=`<svg viewBox="0 0 ${W} ${H}" class="svgmap" role="img" aria-label="Best clip strength per episode"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc)" stop-opacity=".35"/><stop offset="1" stop-color="var(--acc)" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${area}" fill="url(#ag)"/><path d="${line}" class="ln2"/>${rings}${dots}${pins}${xs.join('')}${xl.join('')}</svg>`;
+  $$('#storymap .eg').forEach(g=>g.onclick=()=>{ $('#ep').value=g.dataset.e; tab('promos'); });
+}
+async function loadEval(sl){
+  const box=$('#evalbox'), rg=$('#rings');
+  try{
+    const r=await (await fetch('/api/eval?run='+encodeURIComponent(RUN))).json();
+    if(r.error||!r.sets||!r.sets.length){ rg.innerHTML='<div class="sub">No reference clips for this run.</div>'; box.textContent=''; return; }
+    EVAL=r; renderStory(sl);
+    $('#evnote').innerHTML=r.independent_test?'An independent held-out set has been scored (see below).':'<b>These are development sets</b>: they were looked at while the tool was built, so every number here is optimistic. <b>No independent test set has been scored.</b> Matching rule: same episode and time overlap (IoU) of at least 0.5.';
+    const T=r.sets.reduce((a,s)=>a+s.total,0), F=r.sets.reduce((a,s)=>a+s.hits,0), O=r.sets.reduce((a,s)=>a+s.top1,0), H3=r.sets.reduce((a,s)=>a+s.top3,0);
+    const ver=Math.round(100*DATA.filter(p=>p.grounded_hook&&p.grounded_cliff).length/DATA.length);
+    const ring=(v,tot,label,sub,txt)=>{ const c=2*Math.PI*34, f=c*v/tot; return `<div class="rg"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" class="rb"/><circle cx="42" cy="42" r="34" class="rf" stroke-dasharray="${f.toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 42 42)"/><text x="42" y="47" text-anchor="middle" class="rt">${txt}</text></svg><div><b>${label}</b><span>${sub}</span></div></div>`; };
+    rg.innerHTML=ring(F,T,'Found','a human clip was matched',`${F}/${T}`)+ring(H3,T,'Top 3 in its episode','where the tool ranked it',`${H3}/${T}`)+ring(O,T,'#1 in its episode','the tool\'s first choice',`${O}/${T}`)+ring(ver,100,'Quotes verified','hook & cliffhanger lines are in the clip',`${ver}%`);
+    const pc=x=>x==null?'n/a':Math.round(100*x)+'%';
+    box.className=''; box.innerHTML=r.sets.map(s=>`<div style="margin:12px 0"><b>${esc(s.name)}</b> <span class="pill ${s.role==='heldout'?'ok':'no'}" title="${esc(s.frozen_at||'')}">${esc(s.role==='dev'?'dev set (seen while building)':s.role)}</span>
+      <span class="pill ok">${s.hits}/${s.total} found</span> <span class="pill">#1 in its episode: ${s.top1}</span> <span class="pill">top 3: ${s.top3}</span>
+      <div class="sub" style="margin:6px 0">In the overall top 10 / 12 / 20: <b>${pc(s.recall_at_10)} / ${pc(s.recall_at_12)} / ${pc(s.recall_at_20)}</b> · MRR ${s.mrr} · median rank ${s.median_rank??'n/a'} · slate precision (lower bound, humans did not label every episode): ${s.slate_matches}/${s.slate_size}</div>
+      <table style="margin-top:6px"><tr><th>Ep</th><th>What the human picked</th><th>Human clip</th><th>Tool clip</th><th>Overlap</th><th>Rank in episode</th></tr>
+      ${s.items.map(i=>`<tr><td>${i.episode}</td><td>${esc(i.note)}</td><td>${fmt(i.gold[0])}–${fmt(i.gold[1])}</td><td>${i.tool?fmt(i.tool[0])+'–'+fmt(i.tool[1]):'–'}</td>
+        <td><span class="pill ${i.hit?'ok':'no'}">${Math.round(i.iou*100)}%</span></td><td>${i.ep_rank?`#${i.ep_rank} of ${i.ep_total}`:'–'}</td></tr>`).join('')}</table>
+      ${(s.failures.not_in_top_12||[]).length?`<details class="more"><summary>Failure examples (${s.failures.not_in_top_12.length}): human clips outside the overall top 12</summary>${s.failures.not_in_top_12.map(i=>`<div class="sub">Ep ${i.episode} (${esc(i.note)}): rank ${i.rank||'not matched'}${i.champion?`; the tool's best clip of that episode overlaps the human one by ${Math.round(100*i.champion.iou)}%`:''}</div>`).join('')}</details>`:''}</div>`).join('');
+  }catch(e){ rg.innerHTML='<div class="sub">Could not compute: '+esc(e.message)+'</div>'; }
+}
+
+/* ---------- promos list ---------- */
+function view(){
+  const q=$('#q').value.toLowerCase(), ep=$('#ep').value;
+  let r=DATA.filter(p=>(!ep||String(p.episode)===ep)&&(!$('#safe').checked||!(p.flags||[]).length)&&(!$('#grounded').checked||(p.grounded_hook&&p.grounded_cliff))
+    &&(!$('#starred').checked||STARS[pk(p)])&&(!q||(p.hook_line+' '+p.cliffhanger_line+' '+p.why).toLowerCase().includes(q)));
+  const key={rank:p=>p.rank,composite:p=>-p.composite,stranger:p=>-(p.stranger_after??-1),episode:p=>p.episode*1000+p.rank,len:p=>-dur(p)}[$('#sort').value];
+  return r.sort((a,b)=>key(a)-key(b));
+}
+function render(){
+  VIEW=view(); if(SEL>=VIEW.length) SEL=-1;
+  $('#stats').textContent=`${VIEW.length} of ${DATA.length} promos`+(VIEW.length>150?' (showing first 150)':'');
+  const box=$('#list'); box.className=GRID?'reelgrid':'';
+  box.innerHTML=VIEW.length?VIEW.slice(0,150).map((p,i)=>GRID?reelCard(p,i):card(p,i)).join(''):'<div class="empty">No promos match these filters.</div>';
+  $$('#list [data-a]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const p=VIEW[+b.dataset.i]; b.dataset.a==='star'?toggleStar(p):openPreview(p); });
+  if(GRID) $$('#list .reel').forEach(c=>c.onclick=()=>openPreview(VIEW[+c.dataset.i]));
+}
+let GRID=true; try{ GRID=localStorage.getItem('pf_grid')!=='0'; }catch(e){}
+function setGrid(g){ GRID=g; try{localStorage.setItem('pf_grid',g?'1':'0');}catch(e){} $('#vg').classList.toggle('on',g); $('#vl').classList.toggle('on',!g); render(); }
+$('#vg').onclick=()=>setGrid(true); $('#vl').onclick=()=>setGrid(false); $('#vg').classList.toggle('on',GRID); $('#vl').classList.toggle('on',!GRID);
+function reelCard(p,i){
+  const act=isAct(p.hook_line), star=STARS[pk(p)], ok=p.grounded_hook&&p.grounded_cliff, fl=p.flags||[];
+  return `<article class="reel${i===SEL?' sel':''}" data-i="${i}" style="--h:${hueOf(p)}">
+    <div class="rtop"><span class="rep">EP ${p.episode} · ${dur(p).toFixed(0)}s</span><span class="rn rk" title="Overall rank">${p.rank}</span></div>
+    <div class="rmid"><div class="rlab">HOOK</div><div class="rhook ${act?'act':''}">${act?'':'“'}${esc(short(stripLabel(p.hook_line),100))}${act?'':'”'}</div></div>
+    <div class="rbot"><div class="rcut"><b>CUTS ON</b> ${esc(short(stripLabel(p.cliffhanger_line),88))}</div>
+      <div class="rchips">${fl.map(f=>`<span class="rchip warn">⚠ ${esc(f.replace(/_/g,' '))}</span>`).join('')}${ok?'':'<span class="rchip warn" title="The model quoted a line that is not in the clip; it was replaced by the clip\'s real line">line corrected</span>'}<span class="rchip">hook ${p.scores.hook}/5</span><span class="rchip">cliff ${p.scores.cliff}/5</span></div>
+      <div class="ract"><button class="rplay" data-a="prev" data-i="${i}">▶ Preview</button><button class="rstar" data-a="star" data-i="${i}" title="Shortlist">${star?'★':'☆'}</button></div></div></article>`;
+}
+function card(p,i){
+  const ok=p.grounded_hook&&p.grounded_cliff, s=STARS[pk(p)];
+  return `<div class="card${i===SEL?' sel':''}" data-i="${i}">
+    <div class="top"><span class="rank">#${p.rank}</span><span class="ep">Episode ${p.episode}</span><span class="time">${segText(p)} · ${dur(p).toFixed(0)}s</span>
+      <span class="acts"><button class="star${s?' on':''}" data-a="star" data-i="${i}" title="Shortlist (s)">${s?'★':'☆'}</button><button data-a="prev" data-i="${i}" title="Preview (p)">▶ Preview</button></span></div>
+    <div class="chips"><span class="chip">hook${meter(p.scores.hook)}</span><span class="chip">cliffhanger${meter(p.scores.cliff)}</span><span class="chip">standalone${meter(p.scores.standalone)}</span>
+      ${p.stranger_after!=null?`<span class="chip">stranger ${p.stranger_after}/5</span>`:''}${(p.flags||[]).map(f=>`<span class="chip bad">⚠ ${esc(f)}</span>`).join('')}
+      <span class="chip ${ok?'good':'bad'}">${ok?'model\'s quotes verified':'line corrected (model\'s quote was not in the clip)'}</span></div>
+    <div class="row"><div class="k">Hook · ${esc((p.hook_type||'').replace(/_/g,' '))}</div><div class="q">${esc(p.hook_line)}</div></div>
+    <div class="row"><div class="k">Cliffhanger · ${esc((p.cliffhanger_type||'').replace(/_/g,' '))}</div><div class="q">${esc(p.cliffhanger_line)}</div></div>
+    <div class="why"><b>Why it works:</b> ${esc(p.why)}</div></div>`;
+}
+['q','ep','sort','safe','grounded','starred'].forEach(id=>$('#'+id).addEventListener('input',()=>{SEL=-1;render();}));
+function toggleStar(p){ const k=pk(p); if(STARS[k]) delete STARS[k]; else STARS[k]={note:''}; saveStars(); if(TAB==='promos')render(); if(TAB==='short')renderShort(); if(TAB==='dash')renderSlate(SLATE); if(CUR&&pk(CUR)===k)drawModal(); }
+
+/* ---------- shortlist ---------- */
+function starred(){ return DATA.filter(p=>STARS[pk(p)]).sort((a,b)=>a.rank-b.rank); }
+function renderShort(){
+  const s=starred();
+  $('#shortlist').innerHTML = s.length ? s.map(p=>`<div class="card"><div class="top"><span class="rank">#${p.rank}</span><span class="ep">Episode ${p.episode}</span><span class="time">${segText(p)}</span>
+    <span class="acts"><button data-k="${pk(p)}" data-a="open">▶ Preview</button><button data-k="${pk(p)}" data-a="rm">Remove</button></span></div>
+    <div class="q" style="margin-top:6px">${esc(stripLabel(p.hook_line))}</div>
+    <textarea class="note" data-k="${pk(p)}" placeholder="Note for the editor (e.g. add title card, cut the first line)…">${esc(STARS[pk(p)].note||'')}</textarea></div>`).join('')
+    : '<div class="empty">Nothing shortlisted yet. Press ☆ on a promo.</div>';
+  $$('#shortlist [data-a]').forEach(b=>b.onclick=()=>{ const p=DATA.find(x=>pk(x)===b.dataset.k); b.dataset.a==='rm'?toggleStar(p):openPreview(p); });
+  $$('#shortlist textarea').forEach(t=>t.oninput=()=>{ STARS[t.dataset.k].note=t.value; saveStars(); });
+}
+function brief(p){ const n=(STARS[pk(p)]||{}).note; return `#${p.rank} — Episode ${p.episode}, ${segText(p)} (${dur(p).toFixed(0)}s)\nHOOK: ${stripLabel(p.hook_line)}\nCLIFFHANGER: ${stripLabel(p.cliffhanger_line)}\nWHY: ${p.why}`+(n?`\nNOTE: ${n}`:''); }
+$('#copybrief').onclick=()=>{ const t=starred().map(brief).join('\n\n'); if(!t) return toast('Nothing shortlisted'); navigator.clipboard.writeText(t).then(()=>toast('Brief copied')); };
+$('#clearstar').onclick=()=>{ if(confirm('Clear the whole shortlist?')){ STARS={}; renderAll(); } };
+$('#exportcsv').onclick=()=>{ const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const rows=starred().map(p=>[p.rank,p.episode,segText(p),dur(p).toFixed(1),stripLabel(p.hook_line),stripLabel(p.cliffhanger_line),p.why,(STARS[pk(p)]||{}).note].map(q).join(','));
+  if(!rows.length) return toast('Nothing shortlisted');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([['rank,episode,segments,seconds,hook,cliffhanger,why,note',...rows].join('\n')],{type:'text/csv'})); a.download='shortlist.csv'; a.click(); };
+
+/* ---------- preview modal ---------- */
+let CUR=null, CLIP=null, raf=null, T=0, playing=false, speed=1, last=0, TOTAL=1, LINES=[];
+async function openPreview(p){
+  CUR=p; CLIP=null; stop(); T=0; $('#ov').classList.add('on'); document.body.style.overflow='hidden'; drawModal();
+  try{
+    const parts=await Promise.all(p.segments.map(s=>fetch(`/api/clip?run=${encodeURIComponent(RUN)}&ep=${s.episode}&spans=${s.start}-${s.end}`).then(r=>r.json())));
+    const main=parts[p.segments.findIndex(s=>s.episode===p.episode)>=0?p.segments.findIndex(s=>s.episode===p.episode):0];
+    CLIP=parts.every(x=>x.available)?{...main,segments:parts.map(x=>x.segments[0])}:{available:false};
+  }catch(e){ CLIP={available:false}; }
+  buildLines(); drawModal();
+}
+function buildLines(){
+  LINES=[]; TOTAL=Math.max(1,dur(CUR));
+  if(!CLIP||!CLIP.available) return;
+  const hq=norm(stripLabel(CUR.hook_line)), cq=norm(stripLabel(CUR.cliffhanger_line)); let off=0, hookDone=false, cliffAt=-1;
+  CUR.segments.forEach((s,si)=>{ (CLIP.segments[si]||[]).forEach(b=>{
+      const L={...b, at:off+Math.max(0,b.start-s.start), seg:si, hook:false, cliff:false};
+      if(!hookDone && hq.length>3 && norm(b.text).includes(hq)){ L.hook=true; hookDone=true; }
+      if(cq.length>3 && norm(b.text).includes(cq)) cliffAt=LINES.length;
+      LINES.push(L); }); off+=s.end-s.start; });
+  if(cliffAt>=0) LINES[cliffAt].cliff=true;
+}
+function drawModal(){
+  const p=CUR; if(!p) return; const ok=p.grounded_hook&&p.grounded_cliff, s=STARS[pk(p)], idx=VIEW.findIndex(x=>pk(x)===pk(p));
+  let tl='', script='';
+  if(CLIP&&CLIP.available){
+    const D=CLIP.duration||1;
+    tl=`<div class="tl">${CLIP.scenes.map(sc=>`<div class="sc" style="width:${100*(sc.end-sc.start)/D}%" title="${esc(sc.heading)}"></div>`).join('')}
+      ${p.segments.filter(g=>g.episode===p.episode).map(g=>`<div class="seg" style="left:${100*g.start/D}%;width:${Math.max(.8,100*(g.end-g.start)/D)}%"></div>`).join('')}</div>
+      <div class="tlab"><span>00:00</span><span>where this sits in Episode ${p.episode} (${fmt(D)})</span><span>${fmt(D)}</span></div>`;
+    const multi=new Set(p.segments.map(g=>g.episode)).size>1;
+    let lastSeg=-1; script=LINES.map((b,i)=>{ const se=p.segments[b.seg].episode;
+      const cut=b.seg!==lastSeg&&lastSeg>=0?`<div class="cut">— CUT${multi?' · now Episode '+se:''} —</div>`:''; lastSeg=b.seg;
+      const who=b.kind==='dialogue'?`<span class="who">${esc(b.label)}</span> <span class="tone">${b.tone?'('+esc(b.tone)+')':''}</span> `:`<span class="who">${b.kind}</span> `;
+      return cut+`<div class="ln ${b.kind}${(!playing&&T===0)||b.at<=T?' on':''}" data-i="${i}"><span class="ts">${multi?'Ep'+se+' ':''}${fmt(b.start)}</span>${who}${esc(b.text)}${b.hook?'<span class="tag">HOOK</span>':''}${b.cliff?'<span class="tag c">CLIFFHANGER</span>':''}</div>`; }).join('');
+  }
+  const body = CLIP==null ? '<div class="empty">Loading screenplay…</div>'
+    : !CLIP.available ? '<div class="empty">Screenplay text not available for this run.<br><span class="sub">Start the app with <code>python app.py --scripts "&lt;scripts folder&gt;"</code> to enable the preview.</span></div>'
+    : `<div class="mphone" id="mphone" style="--h:${hueOf(p)}"><div class="scr" id="mscr"></div></div>${tl}<div class="play"><button id="pl">${playing?'⏸ Pause':'▶ Play'}</button><div class="pbar" id="pbar"><i id="pfill" style="width:${100*T/TOTAL}%"></i></div>
+       <button id="sp">${speed}×</button><span class="time" id="ptime">${T.toFixed(0)}s / ${TOTAL.toFixed(0)}s</span></div><div class="script" id="script">${script}</div>
+       <div class="sub" style="margin-top:6px">The phone plays the clip as subtitles, timed to the screenplay’s own timestamps.</div>`;
+  $('#modal').innerHTML=`<div class="mh"><span class="t">#${p.rank} · Episode ${p.episode}</span><span class="time">${segText(p)} · ${dur(p).toFixed(0)}s</span>
+      <span class="acts" style="margin-left:auto"><button id="mprev" ${idx<=0?'disabled':''}>←</button><button id="mnext" ${idx<0||idx>=VIEW.length-1?'disabled':''}>→</button>
+      <button class="star${s?' on':''}" id="mstar">${s?'★ Shortlisted':'☆ Shortlist'}</button><button id="mcopy">Copy brief</button><button id="mclose">✕</button></span></div>
+    <div class="mb"><div>${body}</div><div>
+      <div class="k">Hook · ${esc((p.hook_type||'').replace(/_/g,' '))}</div><div class="q">${esc(p.hook_line)}</div>
+      <div class="k" style="margin-top:10px">Cliffhanger · ${esc((p.cliffhanger_type||'').replace(/_/g,' '))}</div><div class="q">${esc(p.cliffhanger_line)}</div>
+      <div class="why"><b>Why it works:</b> ${esc(p.why)}</div>
+      <div class="chips"><span class="chip">hook${meter(p.scores.hook)}</span><span class="chip">cliffhanger${meter(p.scores.cliff)}</span><span class="chip">standalone${meter(p.scores.standalone)}</span>
+        <span class="chip ${ok?'good':'bad'}">${ok?'model\'s quotes verified':'line corrected (model\'s quote was not in the clip)'}</span>${(p.flags||[]).map(f=>`<span class="chip bad">⚠ ${esc(f)}</span>`).join('')}</div>
+      <div class="k" style="margin-top:12px">Stranger test <span class="chip">${p.stranger_before??'–'} → ${p.stranger_after??'–'} / 5</span></div>
+      <div class="sub">Who: ${esc(p.stranger_who||'not tested')}<br>Conflict: ${esc(p.stranger_conflict||'–')}<br>Still unclear: ${esc(p.stranger_missing||'–')}</div>
+      <div class="sub">Ranking: ${esc(p.rank_basis)} · final score ${p.final_score}${p.tourney_games?` · head-to-head tournament: ${p.tourney_points} of ${p.tourney_games} points`:''}${(p.notes||[]).map(n=>'<br>Note: '+esc(n)).join('')}</div></div></div>`;
+  $('#mclose').onclick=closeModal; $('#mstar').onclick=()=>toggleStar(p); PHKEY=''; paintPhone();
+  $('#mcopy').onclick=()=>navigator.clipboard.writeText(brief(p)).then(()=>toast('Brief copied'));
+  $('#mprev').onclick=()=>step(-1); $('#mnext').onclick=()=>step(1);
+  if($('#pl')){ $('#pl').onclick=toggle; $('#sp').onclick=()=>{ speed=speed===1?2:speed===2?4:1; $('#sp').textContent=speed+'×'; };
+    $('#pbar').onclick=e=>{ const r=e.currentTarget.getBoundingClientRect(), f=(e.clientX-r.left)/r.width; T=f>0.985?TOTAL:TOTAL*f; tick(0,true); }; }
+}
+function step(d){ const i=VIEW.findIndex(x=>pk(x)===pk(CUR))+d; if(i>=0&&i<VIEW.length){ SEL=i; openPreview(VIEW[i]); } }
+function closeModal(){ stop(); $('#ov').classList.remove('on'); document.body.style.overflow=''; CUR=null; if(TAB==='promos')render(); }
+$('#ov').onclick=e=>{ if(e.target.id==='ov') closeModal(); };
+function toggle(){ if(playing){ stop(); } else { if(T>=TOTAL) T=0; playing=true; last=performance.now(); raf=requestAnimationFrame(loop); } $('#pl').textContent=playing?'⏸ Pause':'▶ Play'; }
+function stop(){ playing=false; if(raf) cancelAnimationFrame(raf); raf=null; }
+function loop(now){ T+=((now-last)/1000)*speed; last=now; if(T>=TOTAL){ T=TOTAL; tick(0,true); stop(); $('#pl')&&($('#pl').textContent='▶ Replay'); return; } tick(0,true); raf=requestAnimationFrame(loop); }
+function tick(_,force){
+  const f=$('#pfill'); if(!f) return; f.style.width=(100*T/TOTAL)+'%'; $('#ptime').textContent=`${T.toFixed(0)}s / ${TOTAL.toFixed(0)}s`;
+  let nowI=-1; $$('#script .ln').forEach(el=>{ const b=LINES[+el.dataset.i], on=b.at<=T||T===0&&!playing; el.classList.toggle('on',on); if(b.at<=T) nowI=+el.dataset.i; el.classList.remove('now'); });
+  if(nowI>=0&&playing){ const el=$(`#script .ln[data-i="${nowI}"]`); el.classList.add('now'); el.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+  paintPhone();
+}
+let PHKEY='';
+function paintPhone(){
+  const el=$('#mscr'); if(!el||!CUR) return;
+  const p=CUR, prog=Math.min(100,100*T/TOTAL), ended=T>0&&T>=TOTAL-0.05, poster=T===0&&!playing;
+  let nowI=-1; LINES.forEach((b,i)=>{ if(b.at<=T) nowI=i; });
+  const key=ended?'end':poster?'poster':String(nowI);
+  if(key!==PHKEY){
+    PHKEY=key;
+    const top=`<div class="mbar"><i></i></div><div class="rtop"><span class="rep">EP ${p.episode} · ${TOTAL.toFixed(0)}s</span><span class="rn rk">${p.rank}</span></div>`;
+    if(ended){
+      el.innerHTML=top+`<div class="rmid end anim"><div class="rlab">TO BE CONTINUED…</div><div class="rhook">What happens next?</div><div class="cta">▶ Start from Ep 1</div></div>
+        <div class="rbot"><div class="rcut"><b>CLIFFHANGER</b> ${esc(short(stripLabel(p.cliffhanger_line),110))}</div></div>`;
+    } else if(poster){
+      const act=isAct(p.hook_line);
+      el.innerHTML=top+`<div class="rmid"><div class="rlab">HOOK · FIRST 3 SECONDS</div><div class="rhook ${act?'act':''}">${act?'':'“'}${esc(short(stripLabel(p.hook_line),120))}${act?'':'”'}</div></div>
+        <div class="rbot"><div class="rtap">▶ press play to watch the clip as subtitles</div></div>`;
+    } else {
+      const b=LINES[Math.max(0,nowI)]; if(!b){ el.innerHTML=top; }
+      else {
+        const dlg=b.kind==='dialogue';
+        el.innerHTML=top+`<div class="rmid anim">${b.hook?'<span class="mtag">HOOK</span>':''}${b.cliff?'<span class="mtag c">CLIFFHANGER</span>':''}
+          <div class="mwho">${dlg?esc(b.label)+(b.tone?' · '+esc(b.tone):''):esc(b.kind)}</div><div class="msub ${dlg?'':'act'}">${esc(b.text)}</div></div>
+          <div class="rbot"><div class="rtap">${p.segments.length>1&&b.seg>0?'· joined clip ·':''}</div></div>`;
+      }
+    }
+  }
+  const bi=el.querySelector('.mbar i'); if(bi) bi.style.width=prog+'%';
+}
+
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown',e=>{
+  const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if(e.key==='Escape'){ if(CUR) closeModal(); else if(typing) document.activeElement.blur(); return; }
+  if(CUR){ if(e.key==='ArrowRight') step(1); else if(e.key==='ArrowLeft') step(-1); else if(e.key===' '&&$('#pl')&&!typing){ e.preventDefault(); toggle(); } else if(e.key==='s'&&!typing) toggleStar(CUR); return; }
+  if(typing){ return; }
+  if(e.key==='/'&&TAB==='promos'){ e.preventDefault(); $('#q').focus(); return; }
+  if(TAB!=='promos') return;
+  if(e.key==='j'||e.key==='k'){ SEL=Math.max(0,Math.min(Math.min(VIEW.length,150)-1,SEL+(e.key==='j'?1:-1))); render(); const c=$(`#list [data-i="${SEL}"]`); c&&c.scrollIntoView({block:'center',behavior:'smooth'}); }
+  else if(e.key==='p'&&SEL>=0) openPreview(VIEW[SEL]); else if(e.key==='s'&&SEL>=0) toggleStar(VIEW[SEL]);
+});
+
+/* ---------- run tab ---------- */
+const rid=()=>Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b=>(b%36).toString(36)).join('');
+$('#pick').onclick=e=>{ e.stopPropagation(); $('#files').click(); };
+$('#pickdir').onclick=e=>{ e.stopPropagation(); $('#folder').click(); };
+$('#folder').onchange=()=>{ addFiles($('#folder').files); $('#folder').value=''; };
+let FILES=[], UPLOADED=null;
+const sigOf=()=>FILES.map(f=>f.name+':'+f.size).join('|');
+async function ensureUploaded(){                 // one upload serves both "Check files" and "Run"
+  const sig=sigOf(); if(UPLOADED&&UPLOADED.sig===sig) return UPLOADED.job;
+  const job=rid();
+  for(let i=0;i<FILES.length;i++){ const f=FILES[i]; say(`Uploading ${i+1}/${FILES.length}: ${f.name}`);
+    const zip=/\.zip$/i.test(f.name);
+    const r=await fetch(zip?`/api/upload_zip?job=${job}`:`/api/upload?job=${job}&name=${encodeURIComponent(f.name)}`,{method:'POST',body:await f.arrayBuffer()});
+    if(!r.ok){ let m='upload failed for '+f.name; try{ m=(await r.json()).error||m; }catch(e){} throw new Error(m); } }
+  UPLOADED={job,sig}; return job;
+}
+async function inspectJob(job){
+  const box=$('#inspect'); box.hidden=false; box.className='insp'; box.textContent='Reading the files…';
+  const r=await (await fetch('/api/inspect?job='+job)).json();
+  if(!r.ok){ box.className='insp bad'; box.innerHTML=`<b>Could not read these files.</b> ${esc(r.error||'')}`; return r; }
+  const s=r.summary, nums=r.episodes, tones=s.dialogue_beats?Math.round(100*s.with_tone/s.dialogue_beats):0, tm=Object.entries(s.timing||{}).map(([k,v])=>`${v} ${k}`).join(', ');
+  const est=Object.keys(s.timing||{}).some(k=>k!=='screenplay');
+  box.className='insp'+(est||s.untimed_blocks||(r.messages||[]).length?' warn':' ok');
+  box.innerHTML=`<b>Detected ${s.episodes} episode${s.episodes>1?'s':''}</b> (${nums[0]}–${nums[nums.length-1]}) · ${s.beats} script blocks · ${s.dialogue_beats} dialogue lines (${tones}% with a tone label) · episodes ${s.episode_seconds[0]}–${s.episode_seconds[1]} s · times from: ${esc(tm)}`
+    +(est?`<div>⚠ Some times are <b>estimated</b> from the order and length of the lines (the files carry no usable timestamps), so every clip time will be approximate.</div>`:'')
+    +(s.untimed_blocks?`<div>⚠ ${s.untimed_blocks} script blocks had no timestamp and will not be used.</div>`:'')
+    +(r.messages||[]).map(m=>`<div>⚠ ${esc(m)}</div>`).join('');
+  return r;
+}
+$('#check').onclick=async()=>{ if(!FILES.length) return say('Choose files or a .zip first.','err'); try{ const job=await ensureUploaded(); say(''); await inspectJob(job); }catch(e){ say(e.message,'err'); } };
+function addFiles(list){
+  list=[...list]; const have=new Set(FILES.map(f=>f.name));
+  const bad=[...list].filter(f=>!/\.(txt|md|srt|zip)$/i.test(f.name)); if(bad.length) toast(`Skipped ${bad.length} file(s): only .txt, .md, .srt and .zip are read`);
+  [...list].filter(f=>/\.(txt|md|srt|zip)$/i.test(f.name)&&!have.has(f.name)).forEach(f=>FILES.push(f)); UPLOADED=null; $('#inspect').hidden=true;
+  FILES.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})); showFiles();
+}
+function showFiles(){
+  const n=FILES.length, nz=FILES.filter(f=>/\.zip$/i.test(f.name)).length, nums=FILES.map(f=>(f.name.match(/episode[-_ ]?0*(\d+)/i)||[])[1]).filter(Boolean).map(Number);
+  $('#flist').innerHTML=n?`<span class="tag2">${n} file${n>1?'s':''}${nz?` (${nz} zip)`:''}${nums.length?` · episodes ${Math.min(...nums)}–${Math.max(...nums)}`:''}</span> <button class="x2" id="clearf">Clear</button>`:'<span class="sub">No files chosen.</span>';
+  const c=$('#clearf'); if(c) c.onclick=()=>{ FILES=[]; $('#files').value=''; showFiles(); };
+  updateEst();
+}
+function updateEst(){
+  const typed=($('#eps').value.match(/\d+/g)||[]).length, n=typed||FILES.length;
+  $('#est').innerHTML=n?`Estimate for ${n} episode${n>1?'s':''}: about <b>${Math.round(n*8.5)}</b> model requests and <b>${Math.max(1,Math.round(n*8.5*4.5/60))} min</b> on the free tier, which allows one call every 4.5 s (a full 50-episode show is about 420 requests, about 30 min; cached steps are free).`:'';
+}
+$('#files').onchange=()=>{ addFiles($('#files').files); $('#files').value=''; };
+const dz=$('#dz'); ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.add('over'); }));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.remove('over'); }));
+async function walk(entry,out){ if(entry.isFile){ await new Promise(r=>entry.file(f=>{out.push(f); r();},r)); }
+  else if(entry.isDirectory){ const rd=entry.createReader(); for(;;){ const batch=await new Promise(r=>rd.readEntries(r,()=>r([]))); if(!batch.length) break; for(const c of batch) await walk(c,out); } } }
+dz.addEventListener('drop',async e=>{ const items=[...(e.dataTransfer.items||[])].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
+  if(items.length){ const out=[]; for(const it of items) await walk(it,out); addFiles(out); } else addFiles(e.dataTransfer.files); });
+dz.onclick=e=>{ if(!e.target.closest('button')) $('#files').click(); };
+$('#eps').addEventListener('input',updateEst);
+$$('.presets button').forEach(b=>b.onclick=()=>{ $('#eps').value=b.dataset.p; updateEst(); });
+function say(t,c=''){ const m=$('#msg'); m.textContent=t; m.className='msg '+c; }
+$('#run').onclick=async()=>{
+  const files=FILES, dir=$('#dir').value.trim();
+  if(!files.length&&!dir) return say('Choose episode files (or a .zip) or enter a folder path first.','err');
+  $('#run').disabled=true; say('Starting…');
+  const body={run_name:$('#name').value,episodes:$('#eps').value,stranger:$('#stranger').checked,mock:$('#mock').checked};
+  try{
+    if(files.length){ JOB=await ensureUploaded(); body.job=JOB;
+      const info=await inspectJob(JOB); if(!info.ok) throw new Error(info.error||'the files could not be read');
+    } else body.input_dir=dir;
+    const r=await (await fetch('/api/run',{method:'POST',body:JSON.stringify(body)})).json();
+    if(r.error) throw new Error(r.error);
+    say('Running…'); $('#stop').hidden=false; $('#log').hidden=false; $('#barwrap').hidden=false; poll=setInterval(status,1500); status();
+  }catch(e){ say(e.message,'err'); $('#run').disabled=false; }
+};
+$('#stop').onclick=()=>fetch('/api/stop',{method:'POST'});
+function progress(lines){ let p=3,m;
+  for(const l of lines){ if((m=l.match(/\[2-5\] Ep\s*(\d+)/))) p=Math.max(p,3+42*(+m[1])/50);
+    if(l.includes('promos after validation')) p=Math.max(p,45);
+    if((m=l.match(/\[stranger\] (\d+)\/(\d+)/))) p=Math.max(p,45+30*(+m[1])/(+m[2]));
+    if(l.includes('stranger-tested')) p=Math.max(p,75); if(l.includes('Done.')) p=100; }
+  return Math.min(100,p); }
+async function status(){
+  const s=await (await fetch('/api/status')).json(), pre=$('#log');
+  pre.textContent=s.log.join('\n'); pre.scrollTop=pre.scrollHeight; $('#bar').style.width=progress(s.log)+'%';
+  if(!s.running){ clearInterval(poll); $('#run').disabled=false; $('#stop').hidden=true;
+    if(s.code===0){ say(`Finished in ${s.seconds}s.`,'ok'); await loadRuns('runs/'+s.run); unlock(); tab('dash'); }
+    else say(`Run ended with exit code ${s.code}. See the log above.`,'err');
+  } else say(`Running… ${s.seconds}s`);
+}
+
+
+/* ---------- export ---------- */
+function download(blob,name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
+const clipId=p=>p.segments.map(s=>`ep${s.episode}_${Math.floor(s.start)}-${Math.round(s.end)}s`).join('+');
+function exportCSV(rows,name){
+  if(!rows.length) return toast('Nothing to export');
+  const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const head=['rank','clip_id','episode','segments','seconds','hook_type','hook_line','cliffhanger_type','cliffhanger_line','why_it_works','score','hook_1to5','cliff_1to5','flags'];
+  const body=rows.map(p=>[p.rank,clipId(p),p.episode,segText(p),dur(p).toFixed(1),p.hook_type,stripLabel(p.hook_line),p.cliffhanger_type,stripLabel(p.cliffhanger_line),p.why,p.final_score,p.scores.hook,p.scores.cliff,(p.flags||[]).join('|')].map(q).join(','));
+  download(new Blob(['\ufeff'+[head.join(','),...body].join('\n')],{type:'text/csv;charset=utf-8'}),name); toast(`Downloaded ${rows.length} rows`);
+}
+function exportJSON(rows,name){ if(!rows.length) return toast('Nothing to export'); download(new Blob([JSON.stringify(rows,null,1)],{type:'application/json'}),name); toast(`Downloaded ${rows.length} clips`); }
+$('#expcsv').onclick=()=>exportCSV(VIEW,'promos.csv'); $('#expjson').onclick=()=>exportJSON(VIEW,'promos.json');
+
+/* ---------- my own picks ---------- */
+let MINE=[];
+function saveMine(){ try{localStorage.setItem('pf_mine_'+RUN,JSON.stringify(MINE));}catch(e){} }
+function renderMine(){
+  $('#g-list').innerHTML=MINE.length?MINE.map((g,i)=>`<span class="tag2">Ep ${g.episode} · ${esc(g.start)}–${esc(g.end)}${g.note?' · '+esc(g.note):''} <button class="x" data-i="${i}" title="Remove">✕</button></span>`).join(' '):'<div class="sub">No picks yet.</div>';
+  $$('#g-list .x').forEach(b=>b.onclick=()=>{ MINE.splice(+b.dataset.i,1); saveMine(); renderMine(); });
+}
+const tsOK=s=>/^\d+:\d{1,2}(\.\d+)?$/.test(String(s).trim());
+$('#g-add').onclick=()=>{
+  const g={episode:+$('#g-ep').value,start:$('#g-s').value.trim(),end:$('#g-e').value.trim(),note:$('#g-n').value.trim()};
+  if(!g.episode||g.episode<1) return toast('Enter the episode number');
+  if(!tsOK(g.start)||!tsOK(g.end)) return toast('Use mm:ss for start and end, e.g. 01:24');
+  MINE.push(g); saveMine(); renderMine(); ['g-s','g-e','g-n'].forEach(i=>$('#'+i).value=''); $('#g-ep').focus();
+};
+$('#g-clear').onclick=()=>{ MINE=[]; saveMine(); renderMine(); $('#g-out').innerHTML=''; };
+$('#g-run').onclick=async()=>{
+  if(!MINE.length) return toast('Add at least one pick first');
+  const out=$('#g-out'); out.innerHTML='<div class="sub">Checking…</div>';
+  try{
+    const r=await (await fetch('/api/evalcustom',{method:'POST',body:JSON.stringify({run:RUN,picks:MINE})})).json();
+    if(r.error){ out.innerHTML=`<div class="msg err">${esc(r.error)}</div>`; return; }
+    const s=r.set;
+    out.innerHTML=`<div style="margin:10px 0 4px"><span class="pill ok">${s.hits}/${s.total} found</span> <span class="pill">#1 in its episode: ${s.top1}</span> <span class="pill">top 3: ${s.top3}</span></div>
+      <table><tr><th>Ep</th><th>Note</th><th>Your clip</th><th>Tool's clip</th><th>Overlap</th><th>Rank in episode</th></tr>${s.items.map(i=>`<tr><td>${i.episode}</td><td>${esc(i.note)}</td><td>${fmt(i.gold[0])}–${fmt(i.gold[1])}</td><td>${i.tool?fmt(i.tool[0])+'–'+fmt(i.tool[1]):'–'}</td>
+      <td><span class="pill ${i.hit?'ok':'no'}">${Math.round(i.iou*100)}%</span></td><td>${i.ep_rank?`#${i.ep_rank} of ${i.ep_total}`:'–'}</td></tr>`).join('')}</table>`;
+  }catch(e){ out.innerHTML=`<div class="msg err">Could not evaluate: ${esc(e.message)}</div>`; }
+};
+
+/* ---------- processing status chip ---------- */
+async function pollStatus(){
+  try{
+    const s=await (await fetch('/api/status')).json(), c=$('#stat'); c.className='statchip';
+    if(s.running){ c.classList.add('run'); c.textContent=`● Running ${Math.round(progress(s.log))}%`; }
+    else if(s.code===0&&s.run){ c.classList.add('done'); c.textContent='● Last run finished'; }
+    else if(s.code!=null&&s.code!==0){ c.classList.add('fail'); c.textContent='● Last run failed'; }
+    else c.textContent='● Idle';
+  }catch(e){}
+}
+$('#stat').onclick=()=>tab('run'); pollStatus(); setInterval(pollStatus,4000);
+
+/* ---------- start ---------- */
+loadRuns(new URLSearchParams(location.search).get('run')||undefined).then(()=>{ const oa=$('#openold-a'); if(DATA.length&&document.documentElement.classList.contains('locked')){ $('#openold').hidden=false; oa.onclick=e=>{e.preventDefault(); unlock(); tab('dash');}; } const h=location.hash.slice(1); tab(['dash','promos','short','run'].includes(h)?h:(h==='preview'?'promos':'dash'));
+  if(h==='preview'&&VIEW.length) openPreview(VIEW[0]).then(()=>{ const tt=new URLSearchParams(location.search).get('t'); if(tt&&CUR){ T=Math.min(TOTAL,+tt); tick(0,true); } }); });
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+# Promo Finder configuration.
+# Swap the model by editing ONLY this file (or env vars) - no code changes.
+input_dir: ""            # folder with episode .txt files (set via --input)
+output_dir: out
+
+window:
+  min_seconds: 20
+  max_seconds: 60
+
+funnel:
+  top_k_per_episode: 12  # rules funnel keeps this many windows per episode
+  overlap_iou: 0.5       # suppress near-duplicate windows
+
+pipeline:
+  workers: 5                      # parallel model calls (shared rate limiter keeps this safe)
+  stranger_top_n_per_episode: 3   # (used only if stranger_shortlist is 0) best N promos per episode
+  stranger_shortlist: 60          # tiered cost: stranger-test only the show's best N clips (the finalists), wherever they are
+  understandable_threshold: 4.0   # below this -> try one repair
+  pairwise_top_m: 10              # head-to-head ranking among the top M
+  block_flags: [sexual]           # never in the "post first" list
+
+scoring:                 # the formulas are in promofinder/scoring.py; these are their weights
+  hook: 1.0              # relative weight of the model's 1-5 rating of the hook
+  cliff: 1.0             # ... of the cliffhanger
+  standalone: 1.0        # ... of "does a newcomer follow this clip"
+  rules: 0.05            # small tie-breaker from the rules funnel
+  stranger_bonus: 0.3    # score added per point the stranger test is above the baseline (negative if below)
+  stranger_baseline: 3.0
+
+slate:                   # step 7: the short ordered list an editor actually posts
+  enabled: true
+  size: 12               # promos in the slate
+  candidates: 60         # finalists: the N best clips of the whole show (every episode can contribute)
+  max_per_episode: 2     # at most this many finalists / slate clips from one episode (a second one must not overlap the first)
+  spoiler_penalty: 0.0   # score removed per spoiler level (0 none, 1 notable, 2 major twist). 0 = label only: a penalty of 0.4
+                         # cost one human-picked clip in each reference set and is an untested hypothesis, so it is off by default
+  landing_episode: 1     # every promo should link to the start of the series
+  tournament:            # head-to-head Swiss tournament between the episode champions (both orders)
+    enabled: true
+    rounds: 4
+    provider: gemini               # the second model is used only while llm.provider is this one (switching provider = one model for everything)
+    model: gemini-3.1-flash-lite   # optional: a different model judges the head-to-head round (lighter on the main model's quota); blank = same model
+
+llm:                     # used from step 3 onward
+  min_seconds_between_calls: 4.5  # calls START >= this far apart (all threads). flash-lite free cap = 15/min
+  provider: gemini       # gemini | openai_compatible
+  model: gemini-3.5-flash-lite   # full flash models (3.5-3.8) have a free cap of 20 requests/DAY - too few
+  api_key_env: GEMINI_API_KEY
+  base_url: ""           # for openai_compatible (Groq, OpenRouter, a Kuku-provided API...)
+  temperature: 0
+  cache_dir: .llm_cache

@@ -1,0 +1,13 @@
+{
+  "_note": "Independent gold set picked by the submitter (not the builder/AI), so the tool is not graded only against the AI's own taste. Times are mm:ss(.ff) within the episode.",
+  "promos": [
+    {"episode": 1,  "start": "00:00.00", "end": "00:43.10", "note": "Shocking wedding betrayal"},
+    {"episode": 3,  "start": "01:26.00", "end": "02:25.75", "note": "Stranger rescues Juliana and proposes"},
+    {"episode": 18, "start": "00:00.00", "end": "00:52.50", "note": "Cottage catches fire; rescue"},
+    {"episode": 23, "start": "01:22.00", "end": "02:04.00", "note": "Arsenic poisoning revelation"},
+    {"episode": 28, "start": "00:24.80", "end": "01:12.00", "note": "Duchess exposes the poisoning"},
+    {"episode": 41, "start": "00:58.00", "end": "01:36.09", "note": "Juliana defies Catherine; explosion"},
+    {"episode": 42, "start": "00:10.50", "end": "01:01.80", "note": "Alexander's true identity revealed"},
+    {"episode": 45, "start": "01:14.80", "end": "02:01.75", "note": "Juliana becomes Duchess, then marriage challenge"}
+  ]
+}

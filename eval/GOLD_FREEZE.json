@@ -1,0 +1,12 @@
+{
+ "eval/gold_user.json": {
+  "sha256": "7b25970fa9f9336cbb70cbecd2af2a8829ab0e91b055be4b4db522bbe5dbba49",
+  "role": "dev",
+  "frozen_at": "2026-11-08T02:01:42"
+ },
+ "eval/gold_builder.json": {
+  "sha256": "f92b59c06703680e0865de5b4733177ac8964d760cf1ab05f15e6d0f680f6a9c",
+  "role": "dev",
+  "frozen_at": "2026-11-08T02:01:42"
+ }
+}

@@ -1,0 +1,21 @@
+# Kuku input pack is confidential - never commit or publish it
+*.txt
+!requirements.txt
+scripts/
+data/
+# run outputs quote the scripts; share via a restricted link instead
+out/
+.llm_cache/
+__pycache__/
+*.pyc
+.env
+uploads/
+runs/
+demo_local.html
+*.log
+review_pack/
+archive_runs/
+eval_reports/
+doc/shots/
+out_*/
+*.srt

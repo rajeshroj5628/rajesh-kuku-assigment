@@ -1,0 +1,9 @@
+{
+ "note": "Timestamps only - clip text is read from the show at run time. Skipped automatically for a different show.",
+ "show_hint": "Lady Juliana arrives at the cathedral",
+ "examples": [
+  {"episode": 12, "start": "00:26", "end": "01:24", "note": "an accusation that turns into an ultimatum, cut right before the answer"},
+  {"episode": 15, "start": "00:44", "end": "01:24", "note": "a violent shove, then the hero arrives - cut on his entrance"},
+  {"episode": 32, "start": "00:18", "end": "00:50", "note": "one defiant line that sets everything in motion"}
+ ]
+}
