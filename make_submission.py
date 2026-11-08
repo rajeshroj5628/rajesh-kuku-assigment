@@ -14,7 +14,7 @@ import sys
 
 KEEP = ["promofinder/*.py", "run_pipeline.py", "run_funnel.py", "make_submission.py",
         "config.yaml", "requirements.txt", "README.md", ".env.example", ".gitignore",
-        "eval/*.py", "eval/gold_*.json", "ui/viewer.html", "ui/app.html", "app.py", "examples/editor_picks.json", "eval/GOLD_FREEZE.json"]
+        "eval/*.py", "eval/gold_*.json", "ui/viewer.html", "ui/app.html", "app.py", "examples/editor_picks.json", "eval/GOLD_FREEZE.json", "make_demo_site.py", "demo_site/*", "demo_site/data/*"]
 OUT = "submission_repo"
 
 
@@ -45,7 +45,11 @@ def main():
     ap.add_argument("--scripts", required=True)
     a = ap.parse_args()
 
-    shutil.rmtree(OUT, ignore_errors=True)
+    if os.path.isdir(OUT):                                  # keep .git, so a rebuild never loses the repository history
+        for name in os.listdir(OUT):
+            if name != ".git":
+                path = os.path.join(OUT, name)
+                shutil.rmtree(path, ignore_errors=True) if os.path.isdir(path) else os.remove(path)
     for pat in KEEP:
         for f in glob.glob(pat):
             dst = os.path.join(OUT, f)
