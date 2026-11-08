@@ -1,6 +1,5 @@
 ﻿"""Builds fronthand/index.html and fronthand/data/: a read-only, static copy of the dashboard for Vercel, from a completed run served by the local app.
-The screenplay's own wording is withheld: every quoted line, plot summary and model explanation is replaced by blocks of the same length,
-so the site shows the structure (episodes, times, scores, ranks, validation, evaluation) but not the script.
+The data is an unmodified copy of the completed run's outputs, including the hook and cliffhanger lines of the clips (the input scripts themselves are not copied).
 
     python app.py --scripts "<folder>"      (another terminal)
     python make_demo_site.py --run out
@@ -26,19 +25,18 @@ def walk(x):
     return x
 def save(name, obj): open(os.path.join(DATA, name), "w", encoding="utf-8").write(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
 
-results = json.loads(get("/api/results" + Q)); save("results.json", walk(results))
-for n in ("quality", "runlog", "episodes", "slate", "eval"): save(n + ".json", walk(json.loads(get(f"/api/{n}{Q}"))))
+results = json.loads(get("/api/results" + Q)); save("results.json", results)
+for n in ("quality", "runlog", "episodes", "slate", "eval"): save(n + ".json", json.loads(get(f"/api/{n}{Q}")))
 # clip detail for the preview window: every segment of every clip
 clips, f2 = {}, lambda x: f"{float(x):.2f}"
 for p in results:
     for s in p["segments"]:
         key = f"{s['episode']}|{f2(s['start'])}|{f2(s['end'])}"
         if key in clips: continue
-        try: clips[key] = walk(json.loads(get(f"/api/clip{Q}&ep={s['episode']}&spans={s['start']}-{s['end']}")))
+        try: clips[key] = (json.loads(get(f"/api/clip{Q}&ep={s['episode']}&spans={s['start']}-{s['end']}")))
         except Exception as e: clips[key] = {"available": False}
 save("clips.json", clips)
 md = get("/api/file" + Q + "&name=slate.md").decode("utf-8")
-md = re.sub(r'^(- (?:Hook|Cliffhanger|Why|Spoiler risk): )(.*)$', lambda m: m.group(1) + hide(m.group(2)), md, flags=re.M)
 open(os.path.join(DATA, "slate.md"), "w", encoding="utf-8", newline="\n").write(md)
 
 SHIM = r"""<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -83,9 +81,8 @@ SHIM = r"""<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszi
       if(map[p]) return real('data/'+map[p]+'.json'); return Promise.resolve(J({error:'not available in the demo'},404)); }
     return real(u,o); };
   document.addEventListener('DOMContentLoaded',()=>{
-    const st=document.createElement('style'); st.textContent='.rhook,.rcut,.q,.ln,.why,.msub,.mwho,.script,.mb .chips+.k+.sub{filter:blur(4.5px);user-select:none}'; document.head.appendChild(st);
     const b=document.createElement('div'); b.id='demobar';
-    b.innerHTML='Demo of PromoFinder &middot; results are from a completed 50-episode run &middot; the screenplay\u2019s own wording is hidden (blurred) &middot; <a href="https://github.com/rajeshroj5628/rajesh-kuku-assigment" target="_blank" rel="noopener">run it for real: source code</a>';
+    b.innerHTML='Demo of PromoFinder &middot; results are from a completed 50-episode run &middot; <a href="https://github.com/rajeshroj5628/rajesh-kuku-assigment" target="_blank" rel="noopener">run it for real: source code</a>';
     b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#ff6a4a;color:#fff;font:600 13px Segoe UI,system-ui,sans-serif;padding:7px 14px;text-align:center';
     b.querySelector('a').style.cssText='color:#fff;text-decoration:underline'; document.body.appendChild(b); document.body.style.paddingBottom='34px';
     const sub=document.querySelector('#v-run .panel .sub'); if(sub) sub.innerHTML='<b>Demo site.</b> Add your episode files: they are counted in this browser only. <b>Run</b> then opens the results of the completed 50-episode run, because the real analysis (model calls) needs the Python app from the GitHub repository.'; });
@@ -96,6 +93,6 @@ assert html.count("<script>") >= 1
 html = html.replace("<script>", SHIM + "\n<script>", 1)
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8", newline="\n").write(html)
 json.dump({"cleanUrls": True, "headers": [{"source": "/data/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=300"}]}]}, open(os.path.join(OUT, "vercel.json"), "w"), indent=1)
-open(os.path.join(OUT, "README.md"), "w", encoding="utf-8").write("# PromoFinder - read-only demo\n\nStatic copy of the dashboard for a completed run. Deploy with Vercel: framework preset **Other**, root directory `fronthand`, no build command.\nThe screenplay text is replaced by blocks (see `make_demo_site.py`). Uploading and running need the real app: `python app.py`.\n")
+open(os.path.join(OUT, "README.md"), "w", encoding="utf-8").write("# PromoFinder - read-only demo\n\nStatic copy of the dashboard for a completed run. Deploy with Vercel: framework preset **Other**, root directory `fronthand`, no build command.\nUploading and running need the real app: `python app.py`.\n")
 print("fronthand built:", sum(len(f) for _, _, f in os.walk(OUT)), "files")
 
