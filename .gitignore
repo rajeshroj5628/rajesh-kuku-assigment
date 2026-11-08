@@ -1,8 +1,9 @@
-# Kuku input pack is confidential - never commit or publish it
+﻿# Kuku input pack is confidential - never commit or publish it
 *.txt
 !requirements.txt
 scripts/
 data/
+!demo_site/data/
 # run outputs quote the scripts; share via a restricted link instead
 out/
 .llm_cache/
@@ -19,3 +20,4 @@ eval_reports/
 doc/shots/
 out_*/
 *.srt
+

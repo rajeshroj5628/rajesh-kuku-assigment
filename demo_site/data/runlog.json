@@ -1,0 +1,1 @@
+{"episodes":50,"promos":387,"dropped":19,"model_call_failures":[],"seconds":2.6,"scoring":{"hook":1.0,"cliff":1.0,"standalone":1.0,"rules":0.05,"stranger_bonus":0.3,"stranger_baseline":3.0},"llm":{"provider":"gemini","model":"gemini-3.5-flash-lite","calls":0,"cache_hits":423,"prompt_tokens":0,"output_tokens":0,"tournament_model":"gemini-3.1-flash-lite"}}
