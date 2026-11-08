@@ -13,7 +13,7 @@ shutil.rmtree(DATA, ignore_errors=True); os.makedirs(DATA)
 get = lambda p: urllib.request.urlopen(a.base + p).read()
 Q = "?run=" + urllib.parse.quote(a.run)
 
-BLOCK = lambda s: re.sub(r"[^\W_]", "\u2588", s)                     # letters and digits -> blocks, spaces and punctuation stay
+BLOCK = lambda s: re.sub(r"[^\W_]", "x", s)                            # letters and digits -> x, spaces and punctuation stay (the page blurs it)
 PREFIX = re.compile(r"^((?:\[[\d:.]+\]\s*)?(?:[A-Z][A-Z0-9 .'\-]*(?:\s*\([^)]*\))?:\s*))(.*)$", re.S)
 def hide(s):
     if not isinstance(s, str) or not s: return s
@@ -83,8 +83,9 @@ SHIM = r"""<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszi
       if(map[p]) return real('data/'+map[p]+'.json'); return Promise.resolve(J({error:'not available in the demo'},404)); }
     return real(u,o); };
   document.addEventListener('DOMContentLoaded',()=>{
+    const st=document.createElement('style'); st.textContent='.rhook,.rcut,.q,.ln,.why,.msub,.mwho,.script,.mb .chips+.k+.sub{filter:blur(4.5px);user-select:none}'; document.head.appendChild(st);
     const b=document.createElement('div'); b.id='demobar';
-    b.innerHTML='Demo of PromoFinder &middot; results are from a completed 50-episode run &middot; the screenplay\u2019s own wording is hidden (shown as blocks) &middot; <a href="https://github.com/rajeshroj5628/rajesh-kuku-assigment" target="_blank" rel="noopener">run it for real: source code</a>';
+    b.innerHTML='Demo of PromoFinder &middot; results are from a completed 50-episode run &middot; the screenplay\u2019s own wording is hidden (blurred) &middot; <a href="https://github.com/rajeshroj5628/rajesh-kuku-assigment" target="_blank" rel="noopener">run it for real: source code</a>';
     b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#ff6a4a;color:#fff;font:600 13px Segoe UI,system-ui,sans-serif;padding:7px 14px;text-align:center';
     b.querySelector('a').style.cssText='color:#fff;text-decoration:underline'; document.body.appendChild(b); document.body.style.paddingBottom='34px';
     const sub=document.querySelector('#v-run .panel .sub'); if(sub) sub.innerHTML='<b>Demo site.</b> Add your episode files: they are counted in this browser only. <b>Run</b> then opens the results of the completed 50-episode run, because the real analysis (model calls) needs the Python app from the GitHub repository.'; });
