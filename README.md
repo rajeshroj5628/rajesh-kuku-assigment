@@ -112,3 +112,5 @@ the dashboard | `eval/` metrics, tests and experiments | `config.yaml` | `exampl
 ## Live demo (read-only)
 
 `fronthand/` holds the whole front end: `app.html` (the dashboard the local app serves), `viewer.html`, and `index.html` + `data/` (a static, read-only copy for a completed 50-episode run, ready for Vercel: framework preset **Other**, root directory `fronthand`, no build command). The screenplay's own wording is replaced by blocks. Uploading and running need the real app (`python app.py`). Rebuild it with `python make_demo_site.py --run out` while the app is running.
+
+Live read-only demo: https://rajesh-kuku-assigment-fronthand.vercel.app
